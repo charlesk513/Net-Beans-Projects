@@ -4,23 +4,23 @@
  */
 package charlesk.com.jdbc;
 import javax.swing.JOptionPane;
-import charlesk.com.jdbc.DatabaseConnection;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.ResultSet;
+import javax.swing.table.DefaultTableModel;
 
 
 /**
  *
  * @author charles
  */
-public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
+public class FirstJDBC extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FirstJDBC.class.getName());
+    Connection con;
+    ResultSet rs;
+     PreparedStatement pst;
 
     /**
      * Creates new form FirstJDBC
@@ -28,6 +28,8 @@ public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
     public FirstJDBC() {
         setLocationRelativeTo(null);
         initComponents();
+        loadStudents();
+        showResultsInTheTable();
     }
 
     /**
@@ -52,8 +54,12 @@ public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
         btn_next = new javax.swing.JButton();
         btn_previous = new javax.swing.JButton();
         btn_isempty = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
+        btn_find = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("ResultSet Manipulation demo ");
 
         btn_save.setText("SAVE");
         btn_save.addActionListener(this::btn_saveActionPerformed);
@@ -77,53 +83,80 @@ public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
         btn_first.addActionListener(this::btn_firstActionPerformed);
 
         btn_last.setText("Last");
+        btn_last.addActionListener(this::btn_lastActionPerformed);
 
         btn_next.setText("Next");
+        btn_next.addActionListener(this::btn_nextActionPerformed);
 
         btn_previous.setText("Previous");
+        btn_previous.addActionListener(this::btn_previousActionPerformed);
 
         btn_isempty.setText("IsEmpty");
+        btn_isempty.addActionListener(this::btn_isemptyActionPerformed);
+
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "name", "regno"
+            }
+        ));
+        jScrollPane1.setViewportView(table);
+
+        btn_find.setText("Find");
+        btn_find.addActionListener(this::btn_findActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btn_first)
-                        .addGap(18, 18, 18)
-                        .addComponent(btn_last)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btn_next)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btn_previous))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btn_save)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btn_clear)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btn_delete)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btn_exit))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(142, 142, 142)
-                        .addComponent(btn_isempty))
-                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lbl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lbl_regno))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_name, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txt_regno, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(370, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btn_first)
+                                .addGap(18, 18, 18)
+                                .addComponent(btn_last)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btn_next)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btn_previous))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btn_save)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btn_clear)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btn_delete)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btn_exit))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lbl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lbl_regno))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txt_name, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txt_regno, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(14, 14, 14)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(66, 66, 66)
+                        .addComponent(btn_isempty)
+                        .addGap(63, 63, 63)
+                        .addComponent(btn_find)))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(151, Short.MAX_VALUE)
+                .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lbl_name)
                     .addComponent(txt_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -131,7 +164,9 @@ public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lbl_regno)
                     .addComponent(txt_regno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(113, 113, 113)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_save)
                     .addComponent(btn_clear)
@@ -143,9 +178,11 @@ public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
                     .addComponent(btn_last)
                     .addComponent(btn_next)
                     .addComponent(btn_previous))
-                .addGap(18, 18, 18)
-                .addComponent(btn_isempty)
-                .addGap(14, 14, 14))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btn_isempty)
+                    .addComponent(btn_find))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
 
         pack();
@@ -203,14 +240,15 @@ public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
         return;
     }*/
 
-    String sql_delete = "DELETE FROM student WHERE name = ?";
+    String sql_delete = "DELETE FROM student WHERE name = '"+name+"'";
 
     try (
         Connection con = DatabaseConnection.getConnection();
         PreparedStatement pst = con.prepareStatement(sql_delete);
     ) {
-        pst.setString(1, name);
-
+        //pst.setString(1, name);
+        int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the record?", "Confirm deletion", JOptionPane.YES_NO_OPTION);
+        if(choice == JOptionPane.YES_OPTION){
         int rows = pst.executeUpdate();
 
         if (rows > 0) {
@@ -220,9 +258,14 @@ public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
             txt_name.setText("");
             txt_regno.setText("");
             txt_name.requestFocus();
+        }
+        else
+             return;
+        
         } else {
             JOptionPane.showMessageDialog(this, 
                 "No student with name " + name + " exists in the database.");
+                
         }
 
     } catch (SQLException e) {
@@ -233,12 +276,117 @@ public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
     }//GEN-LAST:event_btn_deleteActionPerformed
 
     private void btn_exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_exitActionPerformed
+        
+        try {
+            con.close();
+            rs.close();
+            pst.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Problem while closing the resources");
+        }
         System.exit(0);
     }//GEN-LAST:event_btn_exitActionPerformed
 
     private void btn_firstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_firstActionPerformed
-        
+    try{
+        if(rs != null && rs.first()){
+            displayCurrentRow();
+        }
+        else{
+            JOptionPane.showMessageDialog(this, "Empty database, nothing to retrieve");
+        }
+    }catch(SQLException e){
+        JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
+    }
     }//GEN-LAST:event_btn_firstActionPerformed
+
+    private void btn_lastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_lastActionPerformed
+        try{
+        if(rs != null && rs.last()){
+            displayCurrentRow();
+        }
+        else{
+            JOptionPane.showMessageDialog(this, "Empty database, nothing to retrieve");
+        }
+    }catch(SQLException e){
+        JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
+    }
+    }//GEN-LAST:event_btn_lastActionPerformed
+
+    private void btn_nextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_nextActionPerformed
+        try{
+        if(rs == null)
+            JOptionPane.showMessageDialog(this, "Results have not been loaded");
+        else if(rs.next())
+            displayCurrentRow();
+        else{
+            JOptionPane.showMessageDialog(this, "You are at the last row");
+            rs.last();
+        }
+    }catch(SQLException e){
+        JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
+    }
+    }//GEN-LAST:event_btn_nextActionPerformed
+
+    private void btn_previousActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_previousActionPerformed
+        try{
+        if(rs == null)
+            JOptionPane.showMessageDialog(this, "Rocords are not loaded");
+        
+        else if(rs.previous()){
+            displayCurrentRow();
+        }
+        else{
+            JOptionPane.showMessageDialog(this, "You are at the first record");
+            rs.first();
+        }
+    }catch(SQLException e){
+        JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
+    }
+    }//GEN-LAST:event_btn_previousActionPerformed
+
+    private void btn_isemptyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_isemptyActionPerformed
+        try{
+        if(rs == null ){
+            JOptionPane.showMessageDialog(this, "Records have been not loaded");
+        }
+        else if(!rs.isFirst()){
+            JOptionPane.showMessageDialog(this, "The table students is empty");
+            
+        }
+        else{
+            String number = countStudents();
+            JOptionPane.showMessageDialog(this, "The table has " + number + " student records");
+        }
+    }catch(SQLException e){
+        JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
+    }
+    }//GEN-LAST:event_btn_isemptyActionPerformed
+
+    private void btn_findActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_findActionPerformed
+        String name = txt_name.getText().toUpperCase();
+        String sql = "SELECT * FROM student WHERE name = '"+name+"'";
+        if(name.isEmpty()){
+            JOptionPane.showMessageDialog(this, "Please enter the name to search in the database");
+            return;
+        }
+        try{
+            con = DatabaseConnection.getConnection();
+            pst = con.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = pst.executeQuery();
+      
+            if(rs == null) 
+                JOptionPane.showMessageDialog(this, "Records have been not loaded");
+            else if(rs.next())
+                displayCurrentRow();
+            
+            else
+                JOptionPane.showMessageDialog(this, "No student found with this name " + name);
+            
+        }catch(SQLException e){
+            JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
+        }
+    }//GEN-LAST:event_btn_findActionPerformed
 
     /**
      * @param args the command line arguments
@@ -269,45 +417,67 @@ public class FirstJDBC extends javax.swing.JFrame implements ActionListener{
     private javax.swing.JButton btn_clear;
     private javax.swing.JButton btn_delete;
     private javax.swing.JButton btn_exit;
+    private javax.swing.JButton btn_find;
     private javax.swing.JButton btn_first;
     private javax.swing.JButton btn_isempty;
     private javax.swing.JButton btn_last;
     private javax.swing.JButton btn_next;
     private javax.swing.JButton btn_previous;
     private javax.swing.JButton btn_save;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lbl_name;
     private javax.swing.JLabel lbl_regno;
+    private javax.swing.JTable table;
     private javax.swing.JTextField txt_name;
     private javax.swing.JTextField txt_regno;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String caption = e.getActionCommand();
-        
-        switch(caption){
-            case "Next":
-                
-    }
+    
+    public final void loadStudents(){
+        String sql = "SELECT * FROM student ORDER BY student_id";
+        try{
+            con = DatabaseConnection.getConnection();
+            pst = con.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = pst.executeQuery();
+        } catch(SQLException e){
+            JOptionPane.showMessageDialog(this, "Error loading students" + e.getMessage());
+        }
     }
     
-    public void loadStudents(){
-        String regno = txt_regno.getText();
-          String sql = "SELECT * FROM student WHERE reg_no = ?";
-          
-          try(
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement pst = con.prepareStatement(sql);
-        ){
-        pst.setString(1, regno);
-        ResultSet rs = pst.executeQuery();
-        if (rs.next())
-        string name = row.getString("name");
-        txt_regno.setText("");
-        txt_name.requestFocus();
-    } catch(SQLException e){
-        JOptionPane.showMessageDialog(this, "Error, while saving in the database");
-        e.printStackTrace();
+    public final String countStudents(){
+        String count = "0";
+        String sql_count = "SELECT COUNT(*) AS total FROM student";
+        try{
+            con = DatabaseConnection.getConnection();
+            pst = con.prepareStatement(sql_count);
+            ResultSet result = pst.executeQuery();
+            count = result.getString("total");
+        } catch(SQLException e){
+            JOptionPane.showMessageDialog(this, "Error loading students" + e.getMessage());
+        }
+        return count;
     }
+    
+    public void displayCurrentRow() throws SQLException{
+        txt_name.setText(rs.getString("name"));
+        txt_regno.setText(rs.getString("reg_no"));
+    }
+    
+    public final void showResultsInTheTable() {
+        try{
+            DefaultTableModel model = (DefaultTableModel) table.getModel();
+        
+            model.setRowCount(0);
+            while(rs.next()){
+                Object[] row = {
+                    rs.getString("name"),
+                    rs.getString("reg_no")
+                };
+                    model.addRow(row);
+            }
+        } catch (SQLException e){
+            JOptionPane.showMessageDialog(this, "Error loading students" + e.getMessage());
+        }
+        
     }
 }
