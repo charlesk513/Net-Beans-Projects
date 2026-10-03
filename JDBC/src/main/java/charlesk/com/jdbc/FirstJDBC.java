@@ -377,7 +377,7 @@ public class FirstJDBC extends javax.swing.JFrame {
       
             if(rs == null) 
                 JOptionPane.showMessageDialog(this, "Records have been not loaded");
-            else if(rs.next())
+            else if(rs.first())
                 displayCurrentRow();
             
             else

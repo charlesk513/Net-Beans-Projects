@@ -9,6 +9,17 @@ import java.sql.PreparedStatement;
 import java.sql.Connection;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.ImageIcon;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Image;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.io.IOException;
+
 /**
  *
  * @author charles
@@ -18,6 +29,7 @@ public class Doctor extends javax.swing.JFrame {
 ResultSet rs;
 PreparedStatement pst;
 Connection con;
+String imagePath = null;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Doctor.class.getName());
 
@@ -25,8 +37,15 @@ Connection con;
      * Creates new form Doctor
      */
     public Doctor() {
+        
         setLocationRelativeTo(null);
         initComponents();
+        
+        combo_gender.setSelectedIndex(-1);
+        loadDepartments();
+        
+        loadDoctors();
+        showResultsInTheTable();
     }
 
     /**
@@ -58,14 +77,20 @@ Connection con;
         lbl_doctors_id = new javax.swing.JLabel();
         lbl_department_id = new javax.swing.JLabel();
         lblb_specialization = new javax.swing.JLabel();
-        txt_department_id = new javax.swing.JTextField();
         txt_doctors_id = new javax.swing.JTextField();
         txt_email = new javax.swing.JTextField();
         txt_phone = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
         txt_specialization = new javax.swing.JTextArea();
+        btn_back = new javax.swing.JButton();
+        lbl_gender = new javax.swing.JLabel();
+        combo_gender = new javax.swing.JComboBox<>();
+        combo_department = new javax.swing.JComboBox<>();
+        btn_choose_image = new javax.swing.JButton();
+        lbl_image = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Doctor's page");
 
         btn_last.setText("LAST");
         btn_last.addActionListener(this::btn_lastActionPerformed);
@@ -78,21 +103,21 @@ Connection con;
 
         doctors_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "First name", "Last Name", "Doctor's id", "Specialization", "Phone", "Email", "Department id"
+                "Doctor ID", "Department ID", "First Name", "Last Name", "Specialization", "Phone", "Email", "Gender"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -139,6 +164,18 @@ Connection con;
         txt_specialization.setRows(5);
         jScrollPane2.setViewportView(txt_specialization);
 
+        btn_back.setText("Back");
+        btn_back.addActionListener(this::btn_backActionPerformed);
+
+        lbl_gender.setText("Gender");
+
+        combo_gender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "M", "F" }));
+
+        btn_choose_image.setText("choose_image");
+        btn_choose_image.addActionListener(this::btn_choose_imageActionPerformed);
+
+        lbl_image.setText("Image");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -147,33 +184,50 @@ Connection con;
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(lbl_doctors_id, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lbl_email, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lbl_firstname, javax.swing.GroupLayout.DEFAULT_SIZE, 72, Short.MAX_VALUE)
-                            .addComponent(lbl_surname, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lbl_phone, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(10, 10, 10)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txt_firstname, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE)
-                                    .addComponent(txt_email)
-                                    .addComponent(txt_phone)))
-                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lbl_surname, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(txt_surname, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(lbl_doctors_id, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lbl_email, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lbl_firstname, javax.swing.GroupLayout.DEFAULT_SIZE, 72, Short.MAX_VALUE)
+                                    .addComponent(lbl_phone, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(10, 10, 10)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(txt_firstname)
+                                            .addComponent(txt_email)
+                                            .addComponent(txt_phone, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(txt_doctors_id, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(combo_gender, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                            .addComponent(lbl_gender)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lbl_department_id, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txt_doctors_id, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                                .addComponent(combo_department, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(lbl_department_id, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(30, 30, 30)
-                                .addComponent(txt_department_id))
-                            .addComponent(lblb_specialization, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(lblb_specialization, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 179, Short.MAX_VALUE)
+                                .addComponent(btn_back))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(btn_choose_image)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(lbl_image, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 50, Short.MAX_VALUE))))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -188,7 +242,7 @@ Connection con;
                                 .addComponent(btn_save)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btn_clear)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGap(20, 20, 20)
                                 .addComponent(btn_delete)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(btn_exit)
@@ -196,41 +250,54 @@ Connection con;
                                 .addComponent(btn_find)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addComponent(jScrollPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbl_surname)
-                    .addComponent(txt_surname, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbl_department_id)
-                    .addComponent(txt_department_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lbl_surname)
+                            .addComponent(txt_surname, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblb_specialization)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(btn_back)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lbl_firstname)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(txt_firstname, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lblb_specialization)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lbl_firstname)
+                            .addComponent(txt_firstname, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(9, 9, 9)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lbl_email)
-                            .addComponent(txt_email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txt_email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lbl_phone)
-                            .addComponent(txt_phone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txt_phone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btn_choose_image))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txt_doctors_id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lbl_doctors_id))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                            .addComponent(lbl_doctors_id))
+                        .addGap(17, 17, 17)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lbl_gender)
+                            .addComponent(combo_gender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lbl_department_id)
+                            .addComponent(combo_department, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(lbl_image, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_save)
                     .addComponent(btn_clear)
@@ -243,8 +310,9 @@ Connection con;
                     .addComponent(btn_last)
                     .addComponent(btn_next)
                     .addComponent(btn_previous))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12))
         );
 
         pack();
@@ -296,28 +364,44 @@ Connection con;
     }//GEN-LAST:event_btn_previousActionPerformed
 
     private void btn_findActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_findActionPerformed
-        String doctor_id = txt_doctors_id.getText().toUpperCase();
-        String sql = "SELECT * FROM student WHERE name = '"+doctor_id+"'";
-        if(doctor_id.isEmpty()){
-            JOptionPane.showMessageDialog(this, "Please enter the ID to search in the database");
-            return;
+        String doctor_id = txt_doctors_id.getText().trim();
+
+    if(doctor_id.isEmpty()){
+        JOptionPane.showMessageDialog(this,
+                "Please enter the ID to search in the database");
+        txt_doctors_id.requestFocus();
+        return;
+    }
+
+    String sql = "SELECT * FROM doctors WHERE doctor_id = ?";
+
+    try(
+        Connection searchCon = DatabaseConnection.getConnection();
+        PreparedStatement searchPst = searchCon.prepareStatement(sql)
+    ){
+
+        searchPst.setString(1, doctor_id);
+
+        try(ResultSet searchRs = searchPst.executeQuery()){
+
+            if(searchRs.next()){
+                txt_doctors_id.setText(searchRs.getString("doctor_id"));
+                combo_department.setSelectedItem(searchRs.getString("department_id"));
+                txt_firstname.setText(searchRs.getString("first_name"));
+                txt_surname.setText(searchRs.getString("last_name"));
+                txt_specialization.setText(searchRs.getString("specialization"));
+                txt_phone.setText(searchRs.getString("phone"));
+                txt_email.setText(searchRs.getString("email"));
+                combo_gender.setSelectedItem(searchRs.getString("gender"));
+
+            } else {
+                JOptionPane.showMessageDialog(this,"No doctor found with ID " + doctor_id);
+            }
         }
-        try{
-            con = DatabaseConnection.getConnection();
-            pst = con.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            rs = pst.executeQuery();
 
-            if(rs == null)
-            JOptionPane.showMessageDialog(this, "Records have been not loaded");
-            else if(rs.next())
-            displayCurrentRow();
-
-            else
-            JOptionPane.showMessageDialog(this, "No student found with this ID " + doctor_id);
-
-        }catch(SQLException e){
-            JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
-        }
+    } catch(SQLException e){
+        JOptionPane.showMessageDialog(this,"Error " + e.getMessage());
+    }
     }//GEN-LAST:event_btn_findActionPerformed
 
     private void btn_saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_saveActionPerformed
@@ -327,10 +411,11 @@ Connection con;
         String phone = txt_phone.getText().trim();
         String email = txt_email.getText().trim();
         String doctor_id = txt_doctors_id.getText().trim();
-        String department_id = txt_department_id.getText().trim();
+        String department_id = (String)combo_department.getSelectedItem();
         String specialization = txt_specialization.getText().trim();
+        String gender = (String) combo_gender.getSelectedItem();
 
-        if(firstname.isEmpty() || surname.isEmpty() || specialization.isEmpty() || email.isEmpty() || phone.isEmpty() || doctor_id.isEmpty() || department_id.isEmpty()){
+        if(firstname.isEmpty() || surname.isEmpty() || specialization.isEmpty() || gender.isEmpty() || email.isEmpty() || phone.isEmpty() || doctor_id.isEmpty() || department_id.isEmpty()){
             if(firstname.isEmpty()){
                 JOptionPane.showMessageDialog(this, "Please fill in the firstname");
                 txt_firstname.requestFocus();
@@ -348,23 +433,37 @@ Connection con;
                 txt_doctors_id.requestFocus();
             }else if(department_id.isEmpty()){
                 JOptionPane.showMessageDialog(this, "Please fill in the department_id");
-                txt_department_id.requestFocus();
+                combo_department.requestFocus();
             }else if(specialization.isEmpty()){
                 JOptionPane.showMessageDialog(this, "Please fill in the specialization");
                 txt_specialization.requestFocus();
+            }else if(combo_gender.getSelectedIndex() == -1){
+                JOptionPane.showMessageDialog(this, "Please select gender");
+                combo_gender.requestFocus();
             }
+            
             return;
         }
-        String sql = "INSERT INTO student(doctor_id, department_id, first_name, last_name, specialization, phone, email) VALUES ('"+doctor_id+"','"+department_id+"', '"+firstname+"', '"+surname+"', '"+specialization+"', '"+phone+"', '"+email+"')";
+        String sql = "INSERT INTO doctors(department_id, first_name, last_name, specialization, phone, email) VALUES (?, ?, ?, ?, ?, ?, ?);";
 
         try(
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement pst = con.prepareStatement(sql);
         ){
+            pst.setString(2, department_id);
+            pst.setString(3, firstname);
+            pst.setString(4, surname);
+            pst.setString(5, specialization);
+            pst.setString(6, phone);
+            pst.setString(7, email);
+            pst.setString(8, gender);
+            
             int rows = pst.executeUpdate();
             if (rows > 0){
                 JOptionPane.showMessageDialog(this, "Data successfully written into the database");
                 clear();
+                loadDoctors();
+                showResultsInTheTable();
                 txt_surname.requestFocus();
             }
         } catch(SQLException e){
@@ -388,8 +487,13 @@ Connection con;
 
     private void btn_deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_deleteActionPerformed
         String doctors_id = txt_doctors_id.getText().trim();
+        if(doctors_id.isEmpty()){
+            JOptionPane.showMessageDialog(this, "Please enter or select a Doctor ID to delete");
+            txt_doctors_id.requestFocus();
+            return;
+        }
 
-        String sql_delete = "DELETE FROM student WHERE name = '"+doctors_id+"'";
+        String sql_delete = "DELETE FROM doctors WHERE doctor_id = ?";
 
         try (
             Connection con = DatabaseConnection.getConnection();
@@ -397,17 +501,19 @@ Connection con;
         ) {
             int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the record?", "Confirm deletion", JOptionPane.YES_NO_OPTION);
             if(choice == JOptionPane.YES_OPTION){
-                
+                pst.setString(1, doctors_id);
                 int rows = pst.executeUpdate();
 
                 if (rows > 0) {
                     JOptionPane.showMessageDialog(this,"Data deleted from database successfully");
                     clear();
+                    loadDoctors();
+                    showResultsInTheTable();   
                     txt_surname.requestFocus();
                 }
                 else{
-                    JOptionPane.showMessageDialog(this,"Data deleted from database successfully");
-                    return;
+                    JOptionPane.showMessageDialog(this, "No Doctor with ID " + doctors_id + " exists in the database.");
+            
                 }
                     
             } else {
@@ -423,13 +529,12 @@ Connection con;
     }//GEN-LAST:event_btn_deleteActionPerformed
 
     private void btn_exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_exitActionPerformed
-
-        try {
-            con.close();
-            rs.close();
-            pst.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Problem while closing the resources");
+    try{
+        if(rs != null) rs.close();
+        if(pst != null) pst.close();
+        if(con != null) con.close();
+        }catch(SQLException e){
+            JOptionPane.showMessageDialog(this, "Problem while closing resources: " + e.getMessage());
         }
         System.exit(0);
     }//GEN-LAST:event_btn_exitActionPerformed
@@ -447,10 +552,53 @@ Connection con;
         }
     }//GEN-LAST:event_btn_firstActionPerformed
 
+    private void btn_backActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_backActionPerformed
+        new Hospital_System().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btn_backActionPerformed
+
+    private void btn_choose_imageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_choose_imageActionPerformed
+    JFileChooser chooser = new JFileChooser();
+
+    FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png");
+
+    chooser.setFileFilter(filter);
+
+    int result = chooser.showOpenDialog(this);
+
+    if(result == JFileChooser.APPROVE_OPTION){
+
+        File selectedFile = chooser.getSelectedFile();
+
+        try{
+            Path doctorFolder = Paths.get("images", "doctors");
+
+            Files.createDirectories(doctorFolder);
+
+            String fileName = System.currentTimeMillis() + "_" + selectedFile.getName();
+
+            Path destination = doctorFolder.resolve(fileName);
+
+            Files.copy(
+                selectedFile.toPath(),
+                destination,
+                StandardCopyOption.REPLACE_EXISTING
+            );
+
+            imagePath = destination.toString();
+
+            displayImage(imagePath);
+
+        }catch(IOException e){
+            JOptionPane.showMessageDialog(this, "Error copying image: " + e.getMessage());
+        }
+    }
+    }//GEN-LAST:event_btn_choose_imageActionPerformed
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void Main() {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -473,6 +621,8 @@ Connection con;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btn_back;
+    private javax.swing.JButton btn_choose_image;
     private javax.swing.JButton btn_clear;
     private javax.swing.JButton btn_delete;
     private javax.swing.JButton btn_exit;
@@ -482,6 +632,8 @@ Connection con;
     private javax.swing.JButton btn_next;
     private javax.swing.JButton btn_previous;
     private javax.swing.JButton btn_save;
+    private javax.swing.JComboBox<String> combo_department;
+    private javax.swing.JComboBox<String> combo_gender;
     private javax.swing.JTable doctors_table;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -489,10 +641,11 @@ Connection con;
     private javax.swing.JLabel lbl_doctors_id;
     private javax.swing.JLabel lbl_email;
     private javax.swing.JLabel lbl_firstname;
+    private javax.swing.JLabel lbl_gender;
+    private javax.swing.JLabel lbl_image;
     private javax.swing.JLabel lbl_phone;
     private javax.swing.JLabel lbl_surname;
     private javax.swing.JLabel lblb_specialization;
-    private javax.swing.JTextField txt_department_id;
     private javax.swing.JTextField txt_doctors_id;
     private javax.swing.JTextField txt_email;
     private javax.swing.JTextField txt_firstname;
@@ -502,13 +655,15 @@ Connection con;
     // End of variables declaration//GEN-END:variables
 
     public void displayCurrentRow() throws SQLException{
+        txt_doctors_id.setText(rs.getString("doctor_id"));
+        combo_department.setSelectedItem(rs.getString("department_id"));
         txt_firstname.setText(rs.getString("first_name"));
         txt_surname.setText(rs.getString("last_name"));
+        txt_specialization.setText(rs.getString("specialization"));
         txt_phone.setText(rs.getString("phone"));
         txt_email.setText(rs.getString("email"));
-        txt_doctors_id.setText(rs.getString("doctor_id"));
-        txt_department_id.setText(rs.getString("department_id"));
-        txt_specialization.setText(rs.getString("specialization"));
+        combo_gender.setSelectedItem(rs.getString("gender"));
+
     }
     
     public void clear() throws SQLException{
@@ -517,8 +672,19 @@ Connection con;
         txt_phone.setText("");
         txt_email.setText("");
         txt_doctors_id.setText("");
-        txt_department_id.setText("");
+        combo_department.setSelectedItem("");
         txt_specialization.setText("");
+        combo_gender.setSelectedIndex(-1);
+    }
+    public final void loadDoctors(){
+        String sql = "SELECT * FROM doctors ORDER BY doctor_id";
+        try{
+            con = DatabaseConnection.getConnection();
+            pst = con.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = pst.executeQuery();
+        } catch(SQLException e){
+            JOptionPane.showMessageDialog(this, "Error loading doctors information: " + e.getMessage());
+        }
     }
     
     public final void showResultsInTheTable() {
@@ -534,14 +700,63 @@ Connection con;
                     rs.getString("last_name"),
                     rs.getString("specialization"),
                     rs.getString("phone"),
-                    rs.getString("email")
+                    rs.getString("email"),
+                    rs.getString("gender")
                 };
                     model.addRow(row);
             }
+            rs.beforeFirst();
         } catch (SQLException e){
-            JOptionPane.showMessageDialog(this, "Error loading students" + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error loading Doctors: " + e.getMessage());
         }
         
     }
+    
+    public void loadDepartments(){
+    String sql = "SELECT department_id, department_name FROM departments ORDER BY department_id";
+
+    try(Connection conn = DatabaseConnection.getConnection(); 
+            PreparedStatement pt = conn.prepareStatement(sql); 
+            ResultSet rset = pt.executeQuery())
+    {
+        combo_department.removeAllItems();
+
+        while(rset.next()){
+            combo_department.addItem(rset.getString("department_id") + " - " + rset.getString("department_name"));
+        }
+
+        combo_department.setSelectedIndex(-1);
+
+    }catch(SQLException e){
+        JOptionPane.showMessageDialog(this, "Error loading departments: " + e.getMessage());
+    }
+}
+    public void displayImage(String path){
+
+    if(path == null || path.trim().isEmpty()){
+        lbl_image.setIcon(null);
+        lbl_image.setText("No Image");
+        return;
+    }
+
+    File imageFile = new File(path);
+
+    if(!imageFile.exists()){
+        lbl_image.setIcon(null);
+        lbl_image.setText("Image Not Found");
+        return;
+    }
+
+    ImageIcon icon = new ImageIcon(path);
+
+    Image image = icon.getImage().getScaledInstance(
+        lbl_image.getWidth(),
+        lbl_image.getHeight(),
+        Image.SCALE_SMOOTH
+    );
+
+    lbl_image.setText("");
+    lbl_image.setIcon(new ImageIcon(image));
+}
     
 }
