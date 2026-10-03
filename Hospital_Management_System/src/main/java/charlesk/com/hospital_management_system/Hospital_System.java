@@ -4,6 +4,8 @@
  */
 package charlesk.com.hospital_management_system;
 
+import java.io.IOException;
+
 /**
  *
  * @author charles
@@ -56,6 +58,11 @@ public class Hospital_System extends javax.swing.JFrame {
         jMenu6 = new javax.swing.JMenu();
         jMenuItem10 = new javax.swing.JMenuItem();
         menu_documents = new javax.swing.JMenu();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenu7 = new javax.swing.JMenu();
+        jMenuItem16 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(51, 153, 255));
@@ -154,6 +161,27 @@ public class Hospital_System extends javax.swing.JFrame {
         jMenuBar1.add(menu_entities);
 
         menu_documents.setText("Documents");
+
+        jMenu1.setText("Medical Report");
+
+        jMenuItem1.setText("Patient Report");
+        jMenuItem1.addActionListener(this::jMenuItem1ActionPerformed);
+        jMenu1.add(jMenuItem1);
+
+        jMenuItem3.setText("Prescription Report");
+        jMenuItem3.addActionListener(this::jMenuItem3ActionPerformed);
+        jMenu1.add(jMenuItem3);
+
+        menu_documents.add(jMenu1);
+
+        jMenu7.setText("Operations");
+
+        jMenuItem16.setText("Management Report");
+        jMenuItem16.addActionListener(this::jMenuItem16ActionPerformed);
+        jMenu7.add(jMenuItem16);
+
+        menu_documents.add(jMenu7);
+
         jMenuBar1.add(menu_documents);
 
         setJMenuBar(jMenuBar1);
@@ -179,57 +207,57 @@ public class Hospital_System extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void menu_medicineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_medicineActionPerformed
-        new Doctor().Main();
+        Doctor.Main();
         this.dispose();
     }//GEN-LAST:event_menu_medicineActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        new Patients().Main();
+        Patients.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void menu_doctorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_doctorActionPerformed
-        new Nurses().Main();
+        Nurses.Main();
         this.dispose();
     }//GEN-LAST:event_menu_doctorActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        new Admissions().Main();
+        Admissions.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-        new Bills().Main();
+        Bills.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
-        new Diagnoses().Main();
+        Diagnoses.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
     private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
-        new Payments().Main();
+        Payments.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem14ActionPerformed
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
-        new Departments().Main();
+        Departments.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
-        new Wards().Main();
+        Wards.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
-        new Rooms().Main();
+        Rooms.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        new Appointments().Main();
+        Appointments.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
@@ -239,19 +267,38 @@ public class Hospital_System extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem15ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-        new Prescriptions().Main();
+        Prescriptions.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
-        new Prescription_Items().Main();
+        Prescription_Items.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem12ActionPerformed
 
     private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
-        new Medicines().Main();
+        Medicines.Main();
         this.dispose();
     }//GEN-LAST:event_jMenuItem10ActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        Prescription_Medical_Report.Main();
+        this.dispose();
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        try {
+            PatientHistory.Main();
+        } catch (IOException ex) {
+            System.getLogger(Hospital_System.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        this.dispose();
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem16ActionPerformed
+        Management_Summary_Report.Main();
+        this.dispose();
+    }//GEN-LAST:event_jMenuItem16ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -279,19 +326,24 @@ public class Hospital_System extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
     private javax.swing.JMenu jMenu6;
+    private javax.swing.JMenu jMenu7;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem12;
     private javax.swing.JMenuItem jMenuItem13;
     private javax.swing.JMenuItem jMenuItem14;
     private javax.swing.JMenuItem jMenuItem15;
+    private javax.swing.JMenuItem jMenuItem16;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
