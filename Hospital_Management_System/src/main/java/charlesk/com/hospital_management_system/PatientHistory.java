@@ -35,18 +35,15 @@ public class PatientHistory {
             PdfWriter.getInstance(document, new FileOutputStream(RESULT));
             document.open();
 
-            // =========================
             // FONTS
-            // =========================
 
             Font titleFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
             Font headingFont = new Font(Font.FontFamily.TIMES_ROMAN, 13, Font.BOLD);
             Font normalFont = new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.NORMAL);
             Font tableHeadingFont = new Font(Font.FontFamily.TIMES_ROMAN, 11, Font.BOLD, BaseColor.BLACK);
 
-            // =========================
+
             // TITLE
-            // =========================
 
             Paragraph title = new Paragraph("HOSPITAL MANAGEMENT SYSTEM", titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
@@ -62,9 +59,7 @@ public class PatientHistory {
 
             document.add(new Paragraph(" "));
 
-            // =========================
             // PATIENT INFORMATION
-            // =========================
 
             String patientSql = "SELECT patient_id, first_name, last_name, gender, date_of_birth, phone, address FROM patients WHERE patient_id = ?";
 
@@ -108,9 +103,7 @@ public class PatientHistory {
 
             document.add(new Paragraph(" "));
 
-            // =========================
             // INTRODUCTORY PARAGRAPH
-            // =========================
 
             Paragraph introduction = new Paragraph("This report presents the patient's recorded hospital " + "history, including appointments, attending doctors, " + "departments and diagnoses recorded during hospital visits.", normalFont);
             introduction.setAlignment(Element.ALIGN_JUSTIFIED);
@@ -120,7 +113,6 @@ public class PatientHistory {
 
             // =========================
             // APPOINTMENT + DIAGNOSIS
-            // =========================
 
             document.add(new Paragraph("APPOINTMENT AND DIAGNOSIS HISTORY", headingFont));
             document.add(new Paragraph(" "));
@@ -181,9 +173,7 @@ public class PatientHistory {
             document.add(appointmentTable);
             document.add(new Paragraph(" "));
 
-            // =========================
             // LABORATORY TESTS
-            // =========================
 
             document.add(new Paragraph("LABORATORY TEST HISTORY", headingFont));
             document.add(new Paragraph(" "));
@@ -238,9 +228,8 @@ public class PatientHistory {
 
             document.add(labTable);
 
-            // =========================
+            
             // END OF REPORT
-            // =========================
 
             document.add(new Paragraph(" "));
 
@@ -249,12 +238,9 @@ public class PatientHistory {
             document.add(end);
 
             document.close();
-
-            //JOptionPane.showMessageDialog(null,"Patient Medical History Report generated successfully.");
-
-            // =========================
+            
             // OPEN PDF
-            // =========================
+            
 
             File reportFile = new File(RESULT);
 

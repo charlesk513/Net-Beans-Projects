@@ -78,6 +78,7 @@ public class Admissions extends javax.swing.JFrame {
         txt_admission_id = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("ADMISSIONS");
 
         btn_find.setText("FIND");
         btn_find.addActionListener(this::btn_findActionPerformed);
@@ -151,6 +152,12 @@ public class Admissions extends javax.swing.JFrame {
         lbl_doctor_id.setText("Doctor id");
 
         combo_status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Admitted", "Discharged" }));
+
+        txt_admission_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_admission_idKeyTyped(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -499,6 +506,20 @@ public class Admissions extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
         }
     }//GEN-LAST:event_btn_previousActionPerformed
+
+    private void txt_admission_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_admission_idKeyTyped
+        // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    // Admission id must be a whole number.
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Admission ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_admission_idKeyTyped
 
     /**
      * @param args the command line arguments

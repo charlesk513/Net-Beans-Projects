@@ -87,8 +87,10 @@ public class Nurses extends javax.swing.JFrame {
         combo_department = new javax.swing.JComboBox<>();
         lbl_image = new javax.swing.JLabel();
         btn_choose_image = new javax.swing.JButton();
+        btn_update = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("NURSES");
 
         btn_last.setText("LAST");
         btn_last.addActionListener(this::btn_lastActionPerformed);
@@ -97,10 +99,22 @@ public class Nurses extends javax.swing.JFrame {
 
         lbl_gender.setText("Gender");
 
+        txt_nurse_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_nurse_idKeyTyped(evt);
+            }
+        });
+
         combo_gender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "M", "F" }));
 
         btn_next.setText("NEXT");
         btn_next.addActionListener(this::btn_nextActionPerformed);
+
+        txt_phone.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_phoneKeyTyped(evt);
+            }
+        });
 
         btn_previous.setText("PREVIOUS");
         btn_previous.addActionListener(this::btn_previousActionPerformed);
@@ -172,66 +186,21 @@ public class Nurses extends javax.swing.JFrame {
         btn_choose_image.setText("choose_image");
         btn_choose_image.addActionListener(this::btn_choose_imageActionPerformed);
 
+        btn_update.setText("UPDATE");
+        btn_update.addActionListener(this::btn_updateActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(lbl_department_id)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(combo_department, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(lbl_gender, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(6, 6, 6)
-                                        .addComponent(txt_email, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(combo_gender, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(lbl_nurse_id, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lbl_firstname, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 74, Short.MAX_VALUE)
-                            .addComponent(lbl_surname, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lbl_phone, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txt_phone, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txt_nurse_id, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(btn_back))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(10, 10, 10)
-                                        .addComponent(btn_choose_image)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(lbl_image, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(0, 0, Short.MAX_VALUE))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(10, 10, 10)
-                                        .addComponent(txt_firstname, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(txt_surname, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(57, 57, 57)
-                                .addComponent(lbl_dob)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(date_chooser, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 17, Short.MAX_VALUE)))))
-                .addContainerGap())
+            .addComponent(jScrollPane1)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lbl_qualification, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txt_qualification, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lbl_email1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btn_first)
                         .addGap(18, 18, 18)
@@ -239,7 +208,67 @@ public class Nurses extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btn_next)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btn_previous))
+                        .addComponent(btn_previous)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btn_update)))
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(lbl_department_id)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(combo_department, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(lbl_gender, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(6, 6, 6)
+                                                .addComponent(txt_email, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(combo_gender, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(lbl_nurse_id, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lbl_firstname, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 74, Short.MAX_VALUE)
+                                    .addComponent(lbl_surname, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(lbl_phone, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(txt_phone, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(txt_nurse_id, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(btn_back))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(10, 10, 10)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                    .addComponent(btn_find)
+                                                    .addComponent(btn_choose_image))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(lbl_image, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(0, 0, Short.MAX_VALUE))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(10, 10, 10)
+                                                .addComponent(txt_firstname, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(txt_surname, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGap(57, 57, 57)
+                                        .addComponent(lbl_dob)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(date_chooser, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 17, Short.MAX_VALUE))))))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btn_save)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -248,18 +277,8 @@ public class Nurses extends javax.swing.JFrame {
                         .addComponent(btn_delete)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btn_exit)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btn_find)))
-                .addGap(194, 194, 194))
-            .addComponent(jScrollPane1)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lbl_qualification, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txt_qualification, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(lbl_email1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -326,7 +345,8 @@ public class Nurses extends javax.swing.JFrame {
                     .addComponent(btn_first)
                     .addComponent(btn_last)
                     .addComponent(btn_next)
-                    .addComponent(btn_previous))
+                    .addComponent(btn_previous)
+                    .addComponent(btn_update))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -408,6 +428,8 @@ public class Nurses extends javax.swing.JFrame {
                 txt_qualification.setText(searchRs.getString("qualification"));
                 date_chooser.setDate(searchRs.getDate("date_of_birth"));
                 combo_gender.setSelectedItem(searchRs.getString("gender"));
+                imagePath = searchRs.getString("image_path");
+                displayImage(imagePath);    
             }else{
                 JOptionPane.showMessageDialog(this, "No nurse found with ID " + nurse_id);
             }
@@ -428,6 +450,7 @@ public class Nurses extends javax.swing.JFrame {
     String qualification = txt_qualification.getText().trim();
     Object selectedGender = combo_gender.getSelectedItem();
     java.util.Date selectedDate = date_chooser.getDate();
+    String image = imagePath;
 
     if(department_id.isEmpty()){
         JOptionPane.showMessageDialog(this, "Please fill in the department ID");
@@ -464,7 +487,7 @@ public class Nurses extends javax.swing.JFrame {
 
     String gender = selectedGender.toString();
     java.sql.Date dob = new java.sql.Date(selectedDate.getTime());
-    String sql = "INSERT INTO nurses(department_id, first_name, last_name, phone, email, qualification, date_of_birth, gender) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO nurses(department_id, first_name, last_name, phone, email, qualification, date_of_birth, gender, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     try(Connection con = DatabaseConnection.getConnection(); PreparedStatement pst = con.prepareStatement(sql)){
 
@@ -476,7 +499,9 @@ public class Nurses extends javax.swing.JFrame {
         pst.setString(6, qualification);
         pst.setDate(7, dob);
         pst.setString(8, gender);
-
+        if(imagePath == null) pst.setNull(9, java.sql.Types.VARCHAR);
+        else pst.setString(9, image);
+        
         int rows = pst.executeUpdate();
 
         if(rows > 0){
@@ -606,6 +631,79 @@ public class Nurses extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btn_choose_imageActionPerformed
 
+    private void txt_phoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_phoneKeyTyped
+            // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    // Phone must be a whole number.
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Phone must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_phoneKeyTyped
+
+    private void txt_nurse_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_nurse_idKeyTyped
+    // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Nurse Id must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_nurse_idKeyTyped
+
+    private void btn_updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_updateActionPerformed
+        String nurse_id = txt_nurse_id.getText().trim();
+
+        if(nurse_id.isEmpty()){
+            JOptionPane.showMessageDialog(this, "Please enter the Nurse ID to update");
+            txt_nurse_id.requestFocus();
+            return;
+        }
+
+        String department_id = combo_department.getSelectedItem() == null ? "" : combo_department.getSelectedItem().toString().split(" - ")[0];
+        String gender = combo_gender.getSelectedItem() == null ? "" : combo_gender.getSelectedItem().toString();
+
+        String sql = "UPDATE nurses SET department_id=COALESCE(NULLIF(?,''),department_id), first_name=COALESCE(NULLIF(?,''),first_name), last_name=COALESCE(NULLIF(?,''),last_name), phone=COALESCE(NULLIF(?,''),phone), email=COALESCE(NULLIF(?,''),email), qualification=COALESCE(NULLIF(?,''),qualification), date_of_birth=COALESCE(?,date_of_birth), gender=COALESCE(NULLIF(?,''),gender), image_path=COALESCE(NULLIF(?,''),image_path) WHERE nurse_id=?";
+
+        try(Connection updateCon = DatabaseConnection.getConnection(); PreparedStatement updatePst = updateCon.prepareStatement(sql)){
+
+            updatePst.setString(1, department_id);
+            updatePst.setString(2, txt_firstname.getText().trim());
+            updatePst.setString(3, txt_surname.getText().trim());
+            updatePst.setString(4, txt_phone.getText().trim());
+            updatePst.setString(5, txt_email.getText().trim());
+            updatePst.setString(6, txt_qualification.getText().trim());
+
+            // If no new DOB is selected, send NULL so MySQL keeps the old DOB.
+            if(date_chooser.getDate() == null) updatePst.setNull(7, java.sql.Types.DATE);
+            else updatePst.setDate(7, new java.sql.Date(date_chooser.getDate().getTime()));
+
+            updatePst.setString(8, gender);
+            updatePst.setString(9, imagePath == null ? "" : imagePath);
+            updatePst.setString(10, nurse_id);
+
+            int rows = updatePst.executeUpdate();
+
+            if(rows > 0){
+                JOptionPane.showMessageDialog(this, "Nurse updated successfully");
+                loadNurses();
+                showResultsInTheTable();
+            }else{
+                JOptionPane.showMessageDialog(this, "No nurse found with ID " + nurse_id);
+            }
+
+        }catch(SQLException e){
+            JOptionPane.showMessageDialog(this, "Error " + e.getMessage());
+        }
+    }//GEN-LAST:event_btn_updateActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -643,6 +741,7 @@ public class Nurses extends javax.swing.JFrame {
     private javax.swing.JButton btn_next;
     private javax.swing.JButton btn_previous;
     private javax.swing.JButton btn_save;
+    private javax.swing.JButton btn_update;
     private javax.swing.JComboBox<String> combo_department;
     private javax.swing.JComboBox<String> combo_gender;
     private com.toedter.calendar.JDateChooser date_chooser;
@@ -678,7 +777,7 @@ public void clear() throws SQLException{
 }
 public void displayCurrentRow() throws SQLException{
     txt_nurse_id.setText(rs.getString("nurse_id"));
-    combo_department.setSelectedItem(rs.getString("department_id"));
+    selectDepartment(rs.getString("department_id"));
     txt_firstname.setText(rs.getString("first_name"));
     txt_surname.setText(rs.getString("last_name"));
     txt_phone.setText(rs.getString("phone"));
@@ -686,6 +785,16 @@ public void displayCurrentRow() throws SQLException{
     txt_qualification.setText(rs.getString("qualification"));
     date_chooser.setDate(rs.getDate("date_of_birth"));
     combo_gender.setSelectedItem(rs.getString("gender"));
+    imagePath = rs.getString("image_path");
+    displayImage(imagePath);
+}
+ public void selectDepartment(String department_id){
+    for(int i = 0; i < combo_department.getItemCount(); i++){
+        if(combo_department.getItemAt(i).startsWith(department_id + " - ")){
+            combo_department.setSelectedIndex(i);
+            break;
+        } 
+    }
 }
 public final void loadNurses(){
     String sql = "SELECT * FROM nurses ORDER BY nurse_id";

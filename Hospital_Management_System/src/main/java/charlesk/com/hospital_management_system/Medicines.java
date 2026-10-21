@@ -64,14 +64,33 @@ public class Medicines extends javax.swing.JFrame {
         lbl_medicine_id = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("MEDICINES");
 
         btn_last.setText("LAST");
         btn_last.addActionListener(this::btn_lastActionPerformed);
 
         lbl_stock_quantity.setText("Stock Quantity");
 
+        txt_stock_quantity.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_stock_quantityKeyTyped(evt);
+            }
+        });
+
+        txt_medicine_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_medicine_idKeyTyped(evt);
+            }
+        });
+
         btn_next.setText("NEXT");
         btn_next.addActionListener(this::btn_nextActionPerformed);
+
+        txt_unit_price.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_unit_priceKeyTyped(evt);
+            }
+        });
 
         btn_previous.setText("PREVIOUS");
         btn_previous.addActionListener(this::btn_previousActionPerformed);
@@ -108,6 +127,11 @@ public class Medicines extends javax.swing.JFrame {
         btn_save.addActionListener(this::btn_saveActionPerformed);
 
         txt_form.addActionListener(this::txt_formActionPerformed);
+        txt_form.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_formKeyTyped(evt);
+            }
+        });
 
         lbl_form.setText("Form");
 
@@ -463,6 +487,62 @@ public class Medicines extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
         }
     }//GEN-LAST:event_btn_firstActionPerformed
+
+    private void txt_unit_priceKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_unit_priceKeyTyped
+           // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c) && !(c == '.')){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Unit price must contain numbers  and a point only.");
+    }
+    }//GEN-LAST:event_txt_unit_priceKeyTyped
+
+    private void txt_stock_quantityKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_stock_quantityKeyTyped
+              // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Stock Quantity must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_stock_quantityKeyTyped
+
+    private void txt_medicine_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_medicine_idKeyTyped
+              // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Unit price must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_medicine_idKeyTyped
+
+    private void txt_formKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_formKeyTyped
+             // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isLetter(c) && !Character.isISOControl(c) && !Character.isSpaceChar(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Form must contain letters only.");
+    }
+    }//GEN-LAST:event_txt_formKeyTyped
 
     /**
      * @param args the command line arguments

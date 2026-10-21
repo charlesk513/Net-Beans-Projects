@@ -70,6 +70,7 @@ public class Rooms extends javax.swing.JFrame {
         combo_status = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("ROOMS");
 
         btn_next.setText("NEXT");
         btn_next.addActionListener(this::btn_nextActionPerformed);
@@ -79,6 +80,12 @@ public class Rooms extends javax.swing.JFrame {
 
         btn_clear.setText("CLEAR");
         btn_clear.addActionListener(this::btn_clearActionPerformed);
+
+        txt_room_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_room_idKeyTyped(evt);
+            }
+        });
 
         lbl_bed_capacity.setText("Bed  Capacity");
 
@@ -238,7 +245,6 @@ public class Rooms extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lbl_status, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(3, 3, 3)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_save)
                     .addComponent(btn_clear)
@@ -474,6 +480,19 @@ public class Rooms extends javax.swing.JFrame {
         new Hospital_System().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btn_backActionPerformed
+
+    private void txt_room_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_room_idKeyTyped
+    // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Room ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_room_idKeyTyped
 
     /**
      * @param args the command line arguments

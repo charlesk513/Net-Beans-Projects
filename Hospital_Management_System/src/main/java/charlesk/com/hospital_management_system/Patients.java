@@ -72,12 +72,19 @@ public class Patients extends javax.swing.JFrame {
         date_chooser = new com.toedter.calendar.JDateChooser();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("PATIENTS");
 
         btn_last.setText("LAST");
         btn_last.addActionListener(this::btn_lastActionPerformed);
 
         btn_next.setText("NEXT");
         btn_next.addActionListener(this::btn_nextActionPerformed);
+
+        txt_phone.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_phoneKeyTyped(evt);
+            }
+        });
 
         btn_previous.setText("PREVIOUS");
         btn_previous.addActionListener(this::btn_previousActionPerformed);
@@ -143,6 +150,12 @@ public class Patients extends javax.swing.JFrame {
         lbl_address.setText("Address");
 
         lbl_gender.setText("Gender");
+
+        txt_patient_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_patient_idKeyTyped(evt);
+            }
+        });
 
         combo_gender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "M", "F" }));
 
@@ -541,6 +554,34 @@ public class Patients extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
         }
     }//GEN-LAST:event_btn_firstActionPerformed
+
+    private void txt_phoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_phoneKeyTyped
+        // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    // Phone must be a whole number.
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Phone must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_phoneKeyTyped
+
+    private void txt_patient_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_patient_idKeyTyped
+        // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Patient ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_patient_idKeyTyped
 
     /**
      * @param args the command line arguments

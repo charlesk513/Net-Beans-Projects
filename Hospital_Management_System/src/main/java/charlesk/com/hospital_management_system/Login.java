@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.util.Arrays;
 /**
  *
  * @author charles
@@ -125,9 +126,9 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_loginActionPerformed
-        String Username = txt_username.getText().trim().toLowerCase();
+        String username = txt_username.getText().trim().toLowerCase();
         String password = String.valueOf(txt_password.getPassword());
-        if(Username.isEmpty()){
+        if(username.isEmpty()){
             JOptionPane.showMessageDialog(this, "Enter the Username");
             txt_username.requestFocus();
             return;
@@ -138,21 +139,21 @@ public class Login extends javax.swing.JFrame {
             return;
         }
         String sql = "SELECT Username, Password FROM login WHERE username = ?;";
-        try(Connection con = DatabaseConnection.getConnection(); 
-            PreparedStatement pst = con.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)
+        try(Connection conn = DatabaseConnection.getConnection(); 
+            PreparedStatement prestate = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)
                 ){
-            pst.setString(1, Username);
-            rs = pst.executeQuery();
+            prestate.setString(1, username);
+            rs = prestate.executeQuery();
             if(rs == null)
                 JOptionPane.showMessageDialog(this, "ResultSet has not been loaded");
             else if(rs.first()){
-                if(password.equals(rs.getString("Password"))){
+                if(password.equals(rs.getString("password"))){
                     new Hospital_System().setVisible(true);
                     this.dispose();
                 }
             }
             else
-                JOptionPane.showMessageDialog(this, "Username: " + Username + " does not exist in the database");
+                JOptionPane.showMessageDialog(this, "username: " + username + " does not exist in the database");
                 
         }
         catch(SQLException e){
@@ -166,12 +167,12 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_cancelActionPerformed
 
     private void btn_password_resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_password_resetActionPerformed
-        //new PasswordReset().Main();
+        new PasswordReset().Main();
         this.dispose();
     }//GEN-LAST:event_btn_password_resetActionPerformed
 
     private void btn_signinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_signinActionPerformed
-        //new SignIn().Main();
+        new SignIn().Main();
         this.dispose();
     }//GEN-LAST:event_btn_signinActionPerformed
 

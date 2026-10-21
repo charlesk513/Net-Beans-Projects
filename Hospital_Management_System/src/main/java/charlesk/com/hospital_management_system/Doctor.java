@@ -88,6 +88,7 @@ String imagePath = null;
         combo_department = new javax.swing.JComboBox<>();
         btn_choose_image = new javax.swing.JButton();
         lbl_image = new javax.swing.JLabel();
+        btn_update = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Doctor's page");
@@ -160,6 +161,18 @@ String imagePath = null;
 
         lblb_specialization.setText("Specialization");
 
+        txt_doctors_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_doctors_idKeyTyped(evt);
+            }
+        });
+
+        txt_phone.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_phoneKeyTyped(evt);
+            }
+        });
+
         txt_specialization.setColumns(20);
         txt_specialization.setRows(5);
         jScrollPane2.setViewportView(txt_specialization);
@@ -175,6 +188,9 @@ String imagePath = null;
         btn_choose_image.addActionListener(this::btn_choose_imageActionPerformed);
 
         lbl_image.setText("Image");
+
+        btn_update.setText("Update");
+        btn_update.addActionListener(this::btn_updateActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -231,23 +247,25 @@ String imagePath = null;
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(btn_first)
-                                .addGap(18, 18, 18)
-                                .addComponent(btn_last)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btn_next)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btn_previous))
-                            .addGroup(layout.createSequentialGroup()
                                 .addComponent(btn_save)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btn_clear)
                                 .addGap(20, 20, 20)
                                 .addComponent(btn_delete)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btn_exit)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btn_find)))
+                                .addGap(26, 26, 26)
+                                .addComponent(btn_exit))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btn_first)
+                                .addGap(18, 18, 18)
+                                .addComponent(btn_last)
+                                .addGap(18, 18, 18)
+                                .addComponent(btn_next)
+                                .addGap(18, 18, 18)
+                                .addComponent(btn_previous)))
+                        .addGap(33, 33, 33)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btn_find)
+                            .addComponent(btn_update))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -309,7 +327,8 @@ String imagePath = null;
                     .addComponent(btn_first)
                     .addComponent(btn_last)
                     .addComponent(btn_next)
-                    .addComponent(btn_previous))
+                    .addComponent(btn_previous)
+                    .addComponent(btn_update))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12))
@@ -393,6 +412,8 @@ String imagePath = null;
                 txt_phone.setText(searchRs.getString("phone"));
                 txt_email.setText(searchRs.getString("email"));
                 combo_gender.setSelectedItem(searchRs.getString("gender"));
+                imagePath = searchRs.getString("image_path");
+                displayImage(imagePath);
 
             } else {
                 JOptionPane.showMessageDialog(this,"No doctor found with ID " + doctor_id);
@@ -405,7 +426,6 @@ String imagePath = null;
     }//GEN-LAST:event_btn_findActionPerformed
 
     private void btn_saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_saveActionPerformed
-        
         String firstname = txt_firstname.getText().trim();
         String surname = txt_surname.getText().trim();
         String phone = txt_phone.getText().trim();
@@ -414,6 +434,7 @@ String imagePath = null;
         String department_id = (String)combo_department.getSelectedItem();
         String specialization = txt_specialization.getText().trim();
         String gender = (String) combo_gender.getSelectedItem();
+        String image = imagePath;
 
         if(firstname.isEmpty() || surname.isEmpty() || specialization.isEmpty() || gender.isEmpty() || email.isEmpty() || phone.isEmpty() || doctor_id.isEmpty() || department_id.isEmpty()){
             if(firstname.isEmpty()){
@@ -444,19 +465,21 @@ String imagePath = null;
             
             return;
         }
-        String sql = "INSERT INTO doctors(department_id, first_name, last_name, specialization, phone, email) VALUES (?, ?, ?, ?, ?, ?, ?);";
+        String sql = "INSERT INTO doctors(department_id, first_name, last_name, specialization, phone, email, gender, image_path) VALUES (?, ?, ?, ?, ?, ?, ?,?, ?);";
 
         try(
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement pst = con.prepareStatement(sql);
         ){
-            pst.setString(2, department_id);
-            pst.setString(3, firstname);
-            pst.setString(4, surname);
-            pst.setString(5, specialization);
-            pst.setString(6, phone);
-            pst.setString(7, email);
-            pst.setString(8, gender);
+            pst.setString(1, department_id);
+            pst.setString(2, firstname);
+            pst.setString(3, surname);
+            pst.setString(4, specialization);
+            pst.setString(5, phone);
+            pst.setString(6, email);
+            pst.setString(7, gender);
+            if(imagePath == null) pst.setNull(8, java.sql.Types.VARCHAR);
+            pst.setString(8, image);
             
             int rows = pst.executeUpdate();
             if (rows > 0){
@@ -595,6 +618,75 @@ String imagePath = null;
     }
     }//GEN-LAST:event_btn_choose_imageActionPerformed
 
+    private void txt_phoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_phoneKeyTyped
+        // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    // Phone must be a whole number.
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Phone must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_phoneKeyTyped
+
+    private void txt_doctors_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_doctors_idKeyTyped
+        // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    // doctor id must be a whole number.
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Doctor ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_doctors_idKeyTyped
+
+    private void btn_updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_updateActionPerformed
+        String doctor_id = txt_doctors_id.getText().trim();
+
+        if(doctor_id.isEmpty()){
+            JOptionPane.showMessageDialog(this, "Please enter the Doctor ID to update");
+            txt_doctors_id.requestFocus();
+            return;
+        }
+
+        String department_id = combo_department.getSelectedItem() == null ? "" : combo_department.getSelectedItem().toString().split(" - ")[0];
+        String gender = combo_gender.getSelectedItem() == null ? "" : combo_gender.getSelectedItem().toString();
+
+        String sql = "UPDATE doctors SET department_id=COALESCE(NULLIF(?,''),department_id), first_name=COALESCE(NULLIF(?,''),first_name), last_name=COALESCE(NULLIF(?,''),last_name), specialization=COALESCE(NULLIF(?,''),specialization), phone=COALESCE(NULLIF(?,''),phone), email=COALESCE(NULLIF(?,''),email), gender=COALESCE(NULLIF(?,''),gender), image_path=COALESCE(NULLIF(?,''),image_path) WHERE doctor_id=?";
+
+        try(Connection updateCon = DatabaseConnection.getConnection(); PreparedStatement updatePst = updateCon.prepareStatement(sql)){
+
+            updatePst.setString(1, department_id);
+            updatePst.setString(2, txt_firstname.getText().trim());
+            updatePst.setString(3, txt_surname.getText().trim());
+            updatePst.setString(4, txt_specialization.getText().trim());
+            updatePst.setString(5, txt_phone.getText().trim());
+            updatePst.setString(6, txt_email.getText().trim());
+            updatePst.setString(7, gender);
+            updatePst.setString(8, imagePath == null ? "" : imagePath);
+            updatePst.setString(9, doctor_id);
+
+            int rows = updatePst.executeUpdate();
+
+            if(rows > 0){
+                JOptionPane.showMessageDialog(this, "Doctor updated successfully");
+                loadDoctors();
+                showResultsInTheTable();
+            }else{
+                JOptionPane.showMessageDialog(this, "No doctor found with ID " + doctor_id);
+            }
+
+        }catch(SQLException e){
+            JOptionPane.showMessageDialog(this, "Error " + e.getMessage());
+        }
+    }//GEN-LAST:event_btn_updateActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -632,6 +724,7 @@ String imagePath = null;
     private javax.swing.JButton btn_next;
     private javax.swing.JButton btn_previous;
     private javax.swing.JButton btn_save;
+    private javax.swing.JButton btn_update;
     private javax.swing.JComboBox<String> combo_department;
     private javax.swing.JComboBox<String> combo_gender;
     private javax.swing.JTable doctors_table;
@@ -657,14 +750,25 @@ String imagePath = null;
     public void displayCurrentRow() throws SQLException{
         txt_doctors_id.setText(rs.getString("doctor_id"));
         combo_department.setSelectedItem(rs.getString("department_id"));
+        selectDepartment(rs.getString("department_id"));
         txt_firstname.setText(rs.getString("first_name"));
         txt_surname.setText(rs.getString("last_name"));
         txt_specialization.setText(rs.getString("specialization"));
         txt_phone.setText(rs.getString("phone"));
         txt_email.setText(rs.getString("email"));
         combo_gender.setSelectedItem(rs.getString("gender"));
+        imagePath = rs.getString("image_path");
+        displayImage(imagePath);
 
     }
+    public void selectDepartment(String department_id){
+    for(int i = 0; i < combo_department.getItemCount(); i++){
+        if(combo_department.getItemAt(i).startsWith(department_id + " - ")){
+            combo_department.setSelectedIndex(i);
+            break;
+        }
+    }
+}
     
     public void clear() throws SQLException{
         txt_firstname.setText("");
@@ -675,6 +779,9 @@ String imagePath = null;
         combo_department.setSelectedItem("");
         txt_specialization.setText("");
         combo_gender.setSelectedIndex(-1);
+        imagePath = null;
+        lbl_image.setIcon(null);
+        lbl_image.setText("No Image");
     }
     public final void loadDoctors(){
         String sql = "SELECT * FROM doctors ORDER BY doctor_id";
@@ -758,5 +865,6 @@ String imagePath = null;
     lbl_image.setText("");
     lbl_image.setIcon(new ImageIcon(image));
 }
-    
+  
+
 }

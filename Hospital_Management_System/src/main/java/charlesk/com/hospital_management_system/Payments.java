@@ -68,6 +68,7 @@ public class Payments extends javax.swing.JFrame {
         lbl_payment_date = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("PAYMENTS");
 
         btn_find.setText("FIND");
         btn_find.addActionListener(this::btn_findActionPerformed);
@@ -81,6 +82,12 @@ public class Payments extends javax.swing.JFrame {
         btn_clear.addActionListener(this::btn_clearActionPerformed);
 
         lbl_bill_id.setText("Bill ID");
+
+        txt_amount.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_amountKeyTyped(evt);
+            }
+        });
 
         btn_delete.setText("DELETE");
         btn_delete.addActionListener(this::btn_deleteActionPerformed);
@@ -103,6 +110,12 @@ public class Payments extends javax.swing.JFrame {
 
         btn_next.setText("NEXT");
         btn_next.addActionListener(this::btn_nextActionPerformed);
+
+        txt_payment_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_payment_idKeyTyped(evt);
+            }
+        });
 
         btn_previous.setText("PREVIOUS");
         btn_previous.addActionListener(this::btn_previousActionPerformed);
@@ -462,6 +475,32 @@ public class Payments extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
         }
     }//GEN-LAST:event_btn_previousActionPerformed
+
+    private void txt_payment_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_payment_idKeyTyped
+        // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Payment ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_payment_idKeyTyped
+
+    private void txt_amountKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_amountKeyTyped
+        // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    if(!Character.isDigit(c) && !Character.isISOControl(c) && !(c == '.')){
+
+        // Reject letters, symbols.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Amount must contain numbers and a decimal pointonly.");
+    }
+    }//GEN-LAST:event_txt_amountKeyTyped
 
     /**
      * @param args the command line arguments

@@ -67,6 +67,7 @@ public class Bills extends javax.swing.JFrame {
         btn_first = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("BILLS");
 
         lbl_bill_date.setText("Bill Date");
 
@@ -75,6 +76,12 @@ public class Bills extends javax.swing.JFrame {
         combo_status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Unpaid", "Paid", "Partial" }));
 
         lbl_appointment_id.setText("Appointment id");
+
+        txt_bill_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_bill_idKeyTyped(evt);
+            }
+        });
 
         lbl_bill_id.setText("Bill id");
 
@@ -105,6 +112,12 @@ public class Bills extends javax.swing.JFrame {
 
         btn_back.setText("Back");
         btn_back.addActionListener(this::btn_backActionPerformed);
+
+        txt_amount.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_amountKeyTyped(evt);
+            }
+        });
 
         lbl_amount.setText("Total Amount");
 
@@ -453,6 +466,34 @@ public class Bills extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
         }
     }//GEN-LAST:event_btn_firstActionPerformed
+
+    private void txt_bill_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_bill_idKeyTyped
+   // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Bill ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_bill_idKeyTyped
+
+    private void txt_amountKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_amountKeyTyped
+    // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c) && !(c == '.')){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Amount must contain numbers and a point only.");
+    }
+    }//GEN-LAST:event_txt_amountKeyTyped
 
     /**
      * @param args the command line arguments
