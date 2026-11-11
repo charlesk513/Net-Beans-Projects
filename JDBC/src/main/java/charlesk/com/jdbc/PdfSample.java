@@ -62,6 +62,7 @@ import java.io.IOException;
          */
 public class PdfSample
 {
+    private static final String pdf = "My_first_doc.pdf";
    public static void main(String[] args) throws BadElementException, IOException, FileNotFoundException, DocumentException
    {
       Document document = new Document();
@@ -79,13 +80,14 @@ public class PdfSample
 //                        document.addCreator("beilelaugustine25@gmail.com");                  
 
 
-         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\AugustineBeilel\\Desktop\\FinalYearProjectSystemImages\\HelloWorld.pdf"));
+         PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(pdf));
+         
          document.open();
 
         //adding image to the pdf from a local directory
         document.add(new Paragraph(""));
         //Add Image
-        Image image1 = Image.getInstance("C:\\Users\\AugustineBeilel\\Desktop\\me.jpg");
+        Image image1 = Image.getInstance("/home/charles/Documents/Pictures/logo.jpg");
         //Fixed Positioning
         //image1.setAbsolutePosition(100f, 550f);
         //Scale to new height and new width of image
@@ -242,6 +244,8 @@ public class PdfSample
 
                      document.close();
                      writer.close();
-                  }
-               }
+                  File reportFile = new File(pdf);
+                new ProcessBuilder("xdg-open", reportFile.getAbsolutePath()).start();
+    }
+}
 

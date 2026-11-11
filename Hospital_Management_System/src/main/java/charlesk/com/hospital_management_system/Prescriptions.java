@@ -65,6 +65,7 @@ public class Prescriptions extends javax.swing.JFrame {
         txt_notes = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("PRESCRIPTIONS");
 
         btn_delete.setText("DELETE");
         btn_delete.addActionListener(this::btn_deleteActionPerformed);
@@ -86,6 +87,12 @@ public class Prescriptions extends javax.swing.JFrame {
         lbl_prescription_id.setText("Prescription ID");
 
         lbl_appointment_id.setText("Appointment ID");
+
+        txt_prescription_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_prescription_idKeyTyped(evt);
+            }
+        });
 
         btn_next.setText("NEXT");
         btn_next.addActionListener(this::btn_nextActionPerformed);
@@ -415,6 +422,19 @@ public class Prescriptions extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error while clearing the interface");
         }
     }//GEN-LAST:event_btn_clearActionPerformed
+
+    private void txt_prescription_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_prescription_idKeyTyped
+    // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Prescription ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_prescription_idKeyTyped
 
     /**
      * @param args the command line arguments

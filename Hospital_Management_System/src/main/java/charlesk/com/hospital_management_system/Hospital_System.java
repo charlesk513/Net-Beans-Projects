@@ -65,6 +65,7 @@ public class Hospital_System extends javax.swing.JFrame {
         jMenuItem16 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("HIOSPITAL SYSTEM");
         setBackground(new java.awt.Color(51, 153, 255));
 
         txt_area.setColumns(20);

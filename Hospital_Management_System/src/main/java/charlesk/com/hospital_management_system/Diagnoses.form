@@ -3,6 +3,7 @@
 <Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
+    <Property name="title" type="java.lang.String" value="DIAGNOSES"/>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -324,6 +325,9 @@
       </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="txt_diagnoses_id">
+      <Events>
+        <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_diagnoses_idKeyTyped"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="lbl_diagnoses_id">
       <Properties>

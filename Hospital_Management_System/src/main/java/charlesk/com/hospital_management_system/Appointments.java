@@ -77,6 +77,14 @@ public class Appointments extends javax.swing.JFrame {
         spinner_appointment_time = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("APPOINTMENTS");
+
+        txt_appointment_id.addActionListener(this::txt_appointment_idActionPerformed);
+        txt_appointment_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_appointment_idKeyTyped(evt);
+            }
+        });
 
         btn_next.setText("NEXT");
         btn_next.addActionListener(this::btn_nextActionPerformed);
@@ -464,6 +472,24 @@ public class Appointments extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error " + e.getMessage());
         }
     }//GEN-LAST:event_btn_firstActionPerformed
+
+    private void txt_appointment_idActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_appointment_idActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_appointment_idActionPerformed
+
+    private void txt_appointment_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_appointment_idKeyTyped
+        // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Appointment ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_appointment_idKeyTyped
 
     /**
      * @param args the command line arguments

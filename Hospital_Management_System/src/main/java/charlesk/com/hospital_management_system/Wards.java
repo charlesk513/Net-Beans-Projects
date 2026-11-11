@@ -67,6 +67,7 @@ public class Wards extends javax.swing.JFrame {
         lbl_department_id = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("WARDS");
 
         lbl_ward_id.setText("Ward ID");
 
@@ -127,6 +128,12 @@ public class Wards extends javax.swing.JFrame {
 
         btn_clear.setText("CLEAR");
         btn_clear.addActionListener(this::btn_clearActionPerformed);
+
+        txt_ward_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_ward_idKeyTyped(evt);
+            }
+        });
 
         btn_previous.setText("PREVIOUS");
         btn_previous.addActionListener(this::btn_previousActionPerformed);
@@ -442,6 +449,19 @@ public class Wards extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
         }
     }//GEN-LAST:event_btn_previousActionPerformed
+
+    private void txt_ward_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_ward_idKeyTyped
+    // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Ward ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_ward_idKeyTyped
 
     /**
      * @param args the command line arguments

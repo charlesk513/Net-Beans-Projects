@@ -60,9 +60,16 @@ public class Departments extends javax.swing.JFrame {
         txt_location = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("DEPARTMENTS");
 
         btn_find.setText("FIND");
         btn_find.addActionListener(this::btn_findActionPerformed);
+
+        txt_phone.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_phoneKeyTyped(evt);
+            }
+        });
 
         btn_save.setText("SAVE");
         btn_save.addActionListener(this::btn_saveActionPerformed);
@@ -71,6 +78,12 @@ public class Departments extends javax.swing.JFrame {
 
         btn_clear.setText("CLEAR");
         btn_clear.addActionListener(this::btn_clearActionPerformed);
+
+        txt_name.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_nameKeyTyped(evt);
+            }
+        });
 
         btn_delete.setText("DELETE");
         btn_delete.addActionListener(this::btn_deleteActionPerformed);
@@ -399,6 +412,25 @@ public class Departments extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this , "Error " + e.getMessage());
         }
     }//GEN-LAST:event_btn_previousActionPerformed
+
+    private void txt_phoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_phoneKeyTyped
+           // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Phone must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_phoneKeyTyped
+
+    private void txt_nameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_nameKeyTyped
+           // Get the character being typed.
+    
+    }//GEN-LAST:event_txt_nameKeyTyped
 
     /**
      * @param args the command line arguments

@@ -66,6 +66,7 @@ public class Diagnoses extends javax.swing.JFrame {
         lbl_diagnoses_id = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("DIAGNOSES");
 
         lbl_appointment_id.setText("Appointment ID");
 
@@ -129,6 +130,12 @@ public class Diagnoses extends javax.swing.JFrame {
 
         btn_back.setText("Back");
         btn_back.addActionListener(this::btn_backActionPerformed);
+
+        txt_diagnoses_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_diagnoses_idKeyTyped(evt);
+            }
+        });
 
         lbl_diagnoses_id.setText("Diagnoses ID");
 
@@ -427,6 +434,20 @@ public class Diagnoses extends javax.swing.JFrame {
         new Hospital_System().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btn_backActionPerformed
+
+    private void txt_diagnoses_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_diagnoses_idKeyTyped
+           // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Diagnoses ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_diagnoses_idKeyTyped
 
     /**
      * @param args the command line arguments

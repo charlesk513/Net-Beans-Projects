@@ -241,7 +241,6 @@ public class FirstJDBC extends javax.swing.JFrame {
     }*/
 
     String sql_delete = "DELETE FROM student WHERE name = '"+name+"'";
-
     try (
         Connection con = DatabaseConnection.getConnection();
         PreparedStatement pst = con.prepareStatement(sql_delete);
@@ -252,8 +251,7 @@ public class FirstJDBC extends javax.swing.JFrame {
         int rows = pst.executeUpdate();
 
         if (rows > 0) {
-            JOptionPane.showMessageDialog(this, 
-                "Data deleted from database successfully");
+            JOptionPane.showMessageDialog(this, "Data deleted from database successfully");
 
             txt_name.setText("");
             txt_regno.setText("");

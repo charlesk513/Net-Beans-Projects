@@ -75,6 +75,7 @@ public class Prescription_Items extends javax.swing.JFrame {
         spinner_duration = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("PRESCRIPTION ITEMS");
 
         btn_delete.setText("DELETE");
         btn_delete.addActionListener(this::btn_deleteActionPerformed);
@@ -96,6 +97,12 @@ public class Prescription_Items extends javax.swing.JFrame {
         lbl_prescriptions_id.setText("Prescriptions ID");
 
         lbl_item_id.setText("Item ID");
+
+        txt_item_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_item_idKeyTyped(evt);
+            }
+        });
 
         btn_next.setText("NEXT");
         btn_next.addActionListener(this::btn_nextActionPerformed);
@@ -138,6 +145,12 @@ public class Prescription_Items extends javax.swing.JFrame {
         jScrollPane1.setViewportView(prescription_items_table);
 
         lbl_medcine_id.setText("Medicine ID");
+
+        txt_quantity.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_quantityKeyTyped(evt);
+            }
+        });
 
         lbl_frequency.setText("Frequency");
 
@@ -491,6 +504,33 @@ public class Prescription_Items extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btn_clearActionPerformed
 
+    private void txt_quantityKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_quantityKeyTyped
+    // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Quantity must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_quantityKeyTyped
+
+    private void txt_item_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_item_idKeyTyped
+    // Get the character being typed.
+    char c = evt.getKeyChar();
+
+    
+    if(!Character.isDigit(c) && !Character.isISOControl(c)){
+
+        // Reject letters, symbols and decimal points.
+        evt.consume();
+
+        JOptionPane.showMessageDialog(this, "Item ID must contain numbers only.");
+    }
+    }//GEN-LAST:event_txt_item_idKeyTyped
+
     /**
      * @param args the command line arguments
      */
@@ -572,9 +612,11 @@ public void loadPrescriptions(){
     }
 }
 public void loadMedicines(){
-    String sql = "SELECT medicine_id, medicine_name FROM medicines ORDER BY medicine_name";
+    String sql = "SELECT medicine_id, medicine_name FROM medicines ORDER BY medicine_id";
 
-    try(Connection medicineCon = DatabaseConnection.getConnection(); PreparedStatement medicinePst = medicineCon.prepareStatement(sql); ResultSet medicineRs = medicinePst.executeQuery()){
+    try(Connection medicineCon = DatabaseConnection.getConnection(); 
+            PreparedStatement medicinePst = medicineCon.prepareStatement(sql); 
+            ResultSet medicineRs = medicinePst.executeQuery()){
 
         combo_medicine.removeAllItems();
 
