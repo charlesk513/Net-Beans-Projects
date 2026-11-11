@@ -4,10 +4,6 @@
  */
 package charlesk.com.hospital_management_system;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
 import javax.swing.JOptionPane;
 /**
  *
@@ -21,9 +17,10 @@ public class SignIn extends javax.swing.JFrame {
      * Creates new form SignIn
      */
     public SignIn() {
-        setLocationRelativeTo(null);
-        initComponents();
-    }
+    initComponents();
+    setLocationRelativeTo(null);
+    setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -109,42 +106,75 @@ public class SignIn extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_saveActionPerformed
-        String username = txt_username.getText().trim();
-        String password = String.valueOf(txt_password.getPassword());
-        if(username.isEmpty()){
-            JOptionPane.showMessageDialog(this, "Enter Username");
-            txt_username.requestFocus();
-            return;
-        }
-        else if(password.isEmpty()){
-            JOptionPane.showMessageDialog(this, "Enter Password");
-            txt_password.requestFocus();
-            return;
-        }
-        String sql = "INSERT INTO login(username, password) VALUES (?, ?);";
-        try(Connection con = DatabaseConnection.getConnection();
-            PreparedStatement pst = con.prepareStatement(sql)
-        ){
-            pst.setString(1, username);
-            pst.setString(2, password);
-            int result = pst.executeUpdate();
-            if(result > 0){
-                JOptionPane.showMessageDialog(this, "Credentials saved successfully");
-                clear();
-                Login login = new Login();
-                login.setVisible(true);
-            }else
-            JOptionPane.showMessageDialog(this, "Something wrong happened");
+       
+    String username = txt_username.getText().trim().toLowerCase();
+    String password = String.valueOf(txt_password.getPassword());
 
+    if (username.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Enter Username");
+        txt_username.requestFocus();
+        return;
+    }
+
+    if (password.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Enter Password");
+        txt_password.requestFocus();
+        return;
+    }
+
+    DataDTO dto = new DataDTO();
+    dto.put("username", username);
+    dto.put("password", password);
+
+    btn_save.setEnabled(false);
+
+    RequestManager.getInstance().sendRequest(
+        "LOGIN_GUI",
+        "LOGIN",
+        "SAVE",
+        dto,
+        event -> {
+
+            btn_save.setEnabled(true);
+
+            Response response = (Response) event.getSource();
+
+            if (!response.isSuccessful()) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Registration failed: " + response.getMessage()
+                );
+                return;
+            }
+
+            Object result = response.getData();
+
+            if (result instanceof Number
+                    && ((Number) result).intValue() > 0) {
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Account created successfully!"
+                );
+
+                clear();
+
+                new Login().setVisible(true);
+                this.dispose();
+
+            } else {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Account could not be created."
+                );
+            }
         }
-        catch(SQLException e){
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-        }
+    );
+
     }//GEN-LAST:event_btn_saveActionPerformed
 
     private void txt_usernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_usernameActionPerformed
-        if(!txt_username.getText().equals(""))
-        txt_username.requestFocus();
+        txt_password.requestFocus();
     }//GEN-LAST:event_txt_usernameActionPerformed
 
     private void btn_clearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_clearActionPerformed
@@ -153,8 +183,7 @@ public class SignIn extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_clearActionPerformed
 
     private void btn_backActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_backActionPerformed
-        Login login = new Login();
-        login.setVisible(true);
+        new Login().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btn_backActionPerformed
 

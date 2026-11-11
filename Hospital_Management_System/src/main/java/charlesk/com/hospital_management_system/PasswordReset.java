@@ -4,28 +4,22 @@
  */
 package charlesk.com.hospital_management_system;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import javax.swing.JOptionPane;
 /**
  *
  * @author charles
  */
 public class PasswordReset extends javax.swing.JFrame {
-    ResultSet rs;
-    PreparedStatement pst;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(PasswordReset.class.getName());
 
     /**
      * Creates new form PasswordReset
      */
     public PasswordReset() {
-        setLocationRelativeTo(null);
-        initComponents();
-    }
-
+    initComponents();
+    setLocationRelativeTo(null);
+    setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -128,74 +122,138 @@ public class PasswordReset extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_clearActionPerformed
 
     private void btn_saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_saveActionPerformed
-        String name = txt_username.getText().trim();
+
+        String username = txt_username.getText().trim().toLowerCase();
         String password1 = String.valueOf(txt_password1.getPassword());
         String password2 = String.valueOf(txt_password2.getPassword());
-        if(name.isEmpty()){
+
+        if (username.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Enter Username");
             txt_username.requestFocus();
             return;
         }
-        else if(password1.isEmpty()){
+
+        if (password1.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Enter New Password");
             txt_password1.requestFocus();
             return;
         }
-        else if(password2.isEmpty()){
+
+        if (password2.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Confirm New Password");
             txt_password2.requestFocus();
             return;
-        } 
-        if(!(password1.equals(password2))){
-            JOptionPane.showMessageDialog(this, "Both passwords must be similar");
-            txt_password1.requestFocus();
-            return;
-        } 
-        
-        String check_sql = "SELECT username, password FROM login WHERE username = ?;";
-        try(Connection con = DatabaseConnection.getConnection(); 
-            PreparedStatement pst = con.prepareStatement(check_sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)
-                ){
-            pst.setString(1, name);
-            rs = pst.executeQuery();
-            if(rs == null)
-                JOptionPane.showMessageDialog(this, "ResultSet has not been loaded");
-            else if(rs.first()){
-                System.out.println();
-                }
-            else{
-                JOptionPane.showMessageDialog(this, "Username: " + name + " does not exist in the database");
-                return;
-            }
         }
-        catch(SQLException e){
-                JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-                }
-        
-        String sql = "UPDATE login SET password = ? WHERE username = ?";
-        try(Connection con = DatabaseConnection.getConnection();
-            PreparedStatement pst = con.prepareStatement(sql)
-        ){
-            pst.setString(1, password1);
-            pst.setString(2, name);
-            int result = pst.executeUpdate();
-            if(result > 0){
-                JOptionPane.showMessageDialog(this, "Password successfully updated");
-                clear();
-                Login login = new Login();
-                login.setVisible(true);
-                this.dispose();
-            } else
-            JOptionPane.showMessageDialog(this, "Something wrong happened");
 
+        if (!password1.equals(password2)) {
+            JOptionPane.showMessageDialog(this, "Both passwords must match.");
+            txt_password2.setText("");
+            txt_password2.requestFocus();
+            return;
         }
-        catch(SQLException e){
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-        }
+
+        DataDTO checkDto = new DataDTO();
+        checkDto.put("username", username);
+
+        btn_save.setEnabled(false);
+
+        RequestManager.getInstance().sendRequest(
+            "LOGIN_GUI",
+            "LOGIN",
+            "CHECK_USER",
+            checkDto,
+            checkEvent -> {
+
+                Response checkResponse =
+                        (Response) checkEvent.getSource();
+
+                if (!checkResponse.isSuccessful()) {
+                    btn_save.setEnabled(true);
+
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "Could not check username: "
+                        + checkResponse.getMessage()
+                    );
+                    return;
+                }
+
+                Object checkData = checkResponse.getData();
+
+                boolean exists = checkData instanceof DataDTO
+                        && Boolean.TRUE.equals(
+                            ((DataDTO) checkData).getBoolean("exists")
+                        );
+
+                if (!exists) {
+                    btn_save.setEnabled(true);
+
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "Username: " + username
+                        + " does not exist in the database."
+                    );
+
+                    txt_username.requestFocus();
+                    return;
+                }
+
+                DataDTO updateDto = new DataDTO();
+                updateDto.put("username", username);
+                updateDto.put("password", password1);
+
+                RequestManager.getInstance().sendRequest(
+                    "LOGIN_GUI",
+                    "LOGIN",
+                    "UPDATE",
+                    updateDto,
+                    updateEvent -> {
+
+                        btn_save.setEnabled(true);
+
+                        Response updateResponse =
+                                (Response) updateEvent.getSource();
+
+                        if (!updateResponse.isSuccessful()) {
+                            JOptionPane.showMessageDialog(
+                                this,
+                                "Password update failed: "
+                                + updateResponse.getMessage()
+                            );
+                            return;
+                        }
+
+                        Object result = updateResponse.getData();
+
+                        if (result instanceof Number
+                                && ((Number) result).intValue() > 0) {
+
+                            JOptionPane.showMessageDialog(
+                                this,
+                                "Password successfully updated."
+                            );
+
+                            clear();
+
+                            new Login().setVisible(true);
+                            this.dispose();
+
+                        } else {
+                            JOptionPane.showMessageDialog(
+                                this,
+                                "Password was not updated. "
+                                + "Please check the username."
+                            );
+                        }
+                    }
+                );
+            }
+        );
+
     }//GEN-LAST:event_btn_saveActionPerformed
 
     private void btn_backActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_backActionPerformed
-        new Login();
+        new Login().setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btn_backActionPerformed
 

@@ -1,15 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package charlesk.com.hospital_management_system;
 
 import javax.swing.JOptionPane;
-import java.sql.PreparedStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.ResultSet;
-import java.util.Arrays;
 /**
  *
  * @author charles
@@ -19,15 +10,13 @@ public class Login extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Login.class.getName());
 
-    ResultSet rs;
-    PreparedStatement pst;
-    Connection con;
     /**
      * Creates new form Login
      */
     public Login() {
-        setLocationRelativeTo(null);
         initComponents();
+        setLocationRelativeTo(null);
+        
     }
 
     /**
@@ -128,51 +117,78 @@ public class Login extends javax.swing.JFrame {
     private void btn_loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_loginActionPerformed
         String username = txt_username.getText().trim().toLowerCase();
         String password = String.valueOf(txt_password.getPassword());
-        if(username.isEmpty()){
+
+        if (username.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Enter the Username");
             txt_username.requestFocus();
             return;
         }
-        else if(password.isEmpty()){
+
+        if (password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Enter the Password");
             txt_password.requestFocus();
             return;
         }
-        String sql = "SELECT Username, Password FROM login WHERE username = ?;";
-        try(Connection conn = DatabaseConnection.getConnection(); 
-            PreparedStatement prestate = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)
-                ){
-            prestate.setString(1, username);
-            rs = prestate.executeQuery();
-            if(rs == null)
-                JOptionPane.showMessageDialog(this, "ResultSet has not been loaded");
-            else if(rs.first()){
-                if(password.equals(rs.getString("password"))){
+
+        DataDTO dto = new DataDTO();
+        dto.put("username", username);
+        dto.put("password", password);
+
+        btn_login.setEnabled(false);
+
+        RequestManager.getInstance().sendRequest(
+            "LOGIN_GUI",
+            "LOGIN",
+            "LOGIN",
+            dto,
+            event -> {
+
+                btn_login.setEnabled(true);
+
+                Response response = (Response) event.getSource();
+
+                if (!response.isSuccessful()) {
+                    JOptionPane.showMessageDialog(this, "Login request failed: " + response.getMessage());
+                    return;
+                }
+
+                Object result = response.getData();
+
+                if (!(result instanceof DataDTO)) {
+                    JOptionPane.showMessageDialog(this, "Invalid login response from server.");
+                    return;
+                }
+
+                DataDTO loginResult = (DataDTO) result;
+
+                boolean authenticated = Boolean.TRUE.equals(loginResult.getBoolean("authenticated"));
+
+                if (authenticated) {
+                    JOptionPane.showMessageDialog(this,"Welcome, " + username + "!");
                     new Hospital_System().setVisible(true);
                     this.dispose();
+
+                } else {
+                    JOptionPane.showMessageDialog(this, "Invalid username or password.");
+                    txt_password.setText("");
+                    txt_password.requestFocus();
                 }
             }
-            else
-                JOptionPane.showMessageDialog(this, "username: " + username + " does not exist in the database");
-                
-        }
-        catch(SQLException e){
-                JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-                }
-        
+        );
     }//GEN-LAST:event_btn_loginActionPerformed
 
     private void btn_cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cancelActionPerformed
-       System.exit(0);
+       RequestManager.getInstance().close();
+        System.exit(0);
     }//GEN-LAST:event_btn_cancelActionPerformed
 
     private void btn_password_resetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_password_resetActionPerformed
-        new PasswordReset().Main();
+        PasswordReset.Main();
         this.dispose();
     }//GEN-LAST:event_btn_password_resetActionPerformed
 
     private void btn_signinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_signinActionPerformed
-        new SignIn().Main();
+        SignIn.Main();
         this.dispose();
     }//GEN-LAST:event_btn_signinActionPerformed
 
@@ -198,16 +214,7 @@ public class Login extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new Login().setVisible(true));
-    }
-    public void displayStudents(){
-        try{
-            con = DatabaseConnection.getConnection();
-            
-        }
-        catch(SQLException e){
-            JOptionPane.showMessageDialog(this, "Error: "+ e.getMessage());
-        }
+        java.awt.EventQueue.invokeLater(AppLauncher::startClient);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

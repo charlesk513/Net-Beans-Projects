@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java Client-Server Serialization Visualizer</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Fira Code', 'monospace'],
+          },
+          colors: {
+            javaBlue: '#38bdf8',
+            javaGreen: '#34d399',
+            javaAmber: '#fbbf24',
+            javaPurple: '#a855f7',
+            swingBg: '#2d3748',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Keyframe Glows & Animations */
+    @keyframes pulseGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.8);
+      }
+    }
+
+    .glow-blue {
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+
+      0%,
+      100% {
+        box-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 25px rgba(52, 211, 153, 0.8);
+      }
+    }
+
+    .glow-green {
+      animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes streamFlow {
+      0% {
+        background-position: 0 0;
+      }
+
+      100% {
+        background-position: 40px 0;
+      }
+    }
+
+    .stream-pipe {
+      background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+      background-size: 40px 100%;
+      animation: streamFlow 1.2s linear infinite;
+    }
+
+    /* Swing Frame Visual Styling */
+    .swing-window {
+      border: 2px solid #475569;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      background: #1e293b;
+    }
+
+    .swing-titlebar {
+      background: linear-gradient(90deg, #334155, #1e293b);
+      border-bottom: 1px solid #475569;
+      padding: 6px 12px;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+    }
+
+    /* Highlighted Code Line */
+    .code-line-highlight {
+      background-color: rgba(251, 191, 36, 0.25) !important;
+      border-left: 4px solid #fbbf24 !important;
+      color: #fef08a !important;
+    }
+
+    /* Animated Popups */
+    .popup-badge {
+      animation: popupFloat 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes popupFloat {
+      0% {
+        transform: scale(0.7) translateY(10px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body
+  class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- TOP APP HEADER -->
+  <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="bg-gradient-to-tr from-amber-500 to-sky-500 p-2.5 rounded-xl shadow-lg text-slate-950 font-bold">
+          <i class="fa-solid fa-network-wired text-xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1
+              class="text-lg font-bold tracking-wide bg-gradient-to-r from-sky-400 via-amber-300 to-emerald-400 bg-clip-text text-transparent">
+              Java Client-Server Object Serialization Visualizer
+            </h1>
+            <span
+              class="bg-amber-500/20 text-amber-300 text-[10px] font-mono px-2 py-0.5 rounded border border-amber-500/30 font-semibold">
+              Java Networking & Serialization
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 font-mono">
+            Package <span class="text-amber-400">charlesk.com.jdbc</span> &bull; Socket(50000) &bull; ObjectStreams
+            &bull; JDBC MySQL
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Action Presets -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btnScenarioConnect" onclick="startWorkflow('connect')"
+          class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-plug text-sky-400"></i> Establish Sockets
+        </button>
+        <button id="btnScenarioSave" onclick="startWorkflow('save')"
+          class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-floppy-disk text-emerald-400"></i> Execute Save()
+        </button>
+        <button id="btnScenarioFind" onclick="startWorkflow('find')"
+          class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-magnifying-glass text-amber-400"></i> Execute Find()
+        </button>
+        <button onclick="openHelpModal()"
+          class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-md">
+          <i class="fa-solid fa-circle-info"></i> How to Run
+        </button>
+        <button onclick="resetSimulation()"
+          class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-rotate-right"></i> Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-4 md:p-6 space-y-5">
+
+    <!-- TOP CONTROL DOCK & TIMELINE -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-3">
+        <!-- Playback Controls -->
+        <div class="flex items-center space-x-2">
+          <button onclick="stepBackward()" id="btnStepBack"
+            class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition" title="Step Backward">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+          <button onclick="togglePlay()" id="btnPlayPause"
+            class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg shadow-lg transition flex items-center gap-2 text-sm">
+            <i id="playIcon" class="fa-solid fa-play"></i> <span id="playText">Play</span>
+          </button>
+          <button onclick="stepForward()" id="btnStepForward"
+            class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition" title="Step Forward">
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+        </div>
+
+        <!-- Step Description Narrative Banner -->
+        <div class="flex-1 text-center md:text-left px-3 py-2 bg-slate-950/80 rounded-xl border border-slate-800">
+          <div
+            class="text-xs font-semibold uppercase tracking-wider text-sky-400 mb-0.5 flex items-center justify-center md:justify-start gap-2">
+            <span id="stepBadge"
+              class="bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-md font-mono text-[11px] border border-sky-500/30">Step
+              0/0</span>
+            <span id="stepTitle" class="text-slate-100 font-sans font-bold">Ready</span>
+          </div>
+          <p id="stepDescription" class="text-xs text-slate-300 line-clamp-2">
+            Click Play or any action button to start tracing Java code execution.
+          </p>
+        </div>
+
+        <!-- Speed Slider & Concept Indicator -->
+        <div class="flex items-center gap-4 text-xs">
+          <div class="flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+            <i class="fa-solid fa-gauge-high text-slate-400"></i>
+            <span class="text-slate-300 font-mono">Speed:</span>
+            <input type="range" id="speedSlider" min="500" max="10000" step="500" value="2500"
+              class="w-20 accent-sky-500 cursor-pointer" onchange="updateSpeed(this.value)">
+            <span id="speedVal" class="text-sky-400 font-mono w-8">1.5s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step Timeline Progress Bar -->
+      <div class="relative w-full bg-slate-950 rounded-full h-2.5 overflow-hidden border border-slate-800 mt-2">
+        <div id="timelineProgress"
+          class="bg-gradient-to-r from-sky-500 via-amber-400 to-emerald-400 h-full w-0 transition-all duration-300">
+        </div>
+      </div>
+      <!-- Timeline Step Markers -->
+      <div id="stepMarkersContainer" class="flex justify-between mt-2 px-1 text-[10px] font-mono text-slate-400">
+        <span>1. Socket Init</span>
+        <span>2. Stream Headers</span>
+        <span>3. Object Flattening (writeObject)</span>
+        <span>4. TCP Transmission</span>
+        <span>5. Unflattening (readObject)</span>
+        <span>6. JDBC Store / GUI Update</span>
+      </div>
+    </div>
+
+    <!-- MAIN VISUALIZATION STAGE (Client, Pipeline Center, Server) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+
+      <!-- LEFT PANEL: CLIENT SWING FRAME & HEAP -->
+      <div class="lg:col-span-4 flex flex-col space-y-3">
+        <!-- Client Swing JFrame Mockup -->
+        <div class="swing-window flex-1 flex flex-col overflow-hidden">
+          <div class="swing-titlebar flex items-center justify-between text-xs font-mono font-medium text-slate-300">
+            <div class="flex items-center space-x-2">
+              <i class="fa-brands fa-java text-amber-400 text-sm"></i>
+              <span>Client JFrame (127.0.0.1)</span>
+            </div>
+            <div class="flex space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-600 block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-600 block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-600 block"></span>
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-900/90 flex-1 flex flex-col justify-between space-y-4">
+            <!-- Form Inputs -->
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">
+                  lblRegNo: <span class="text-slate-400 font-mono text-[11px]">txtRegNo</span>
+                </label>
+                <input type="text" id="txtRegNo" value="2025/BCS/084/PS" placeholder="Enter Reg number"
+                  class="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-md px-3 py-1.5 text-sm font-mono text-sky-300 outline-none transition">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">
+                  lblSurName: <span class="text-slate-400 font-mono text-[11px]">txtSurName</span>
+                </label>
+                <input type="text" id="txtSurName" value="Kabunga" placeholder="Enter Surname"
+                  class="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-md px-3 py-1.5 text-sm font-mono text-sky-300 outline-none transition">
+              </div>
+
+              <!-- Swing Action Buttons -->
+              <div class="flex items-center gap-2 pt-2">
+                <button onclick="handleClientButton('save')"
+                  class="flex-1 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-medium py-1.5 px-2 rounded-md text-xs shadow-md transition flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-download text-[10px]"></i> btnSave
+                </button>
+                <button onclick="handleClientButton('find')"
+                  class="flex-1 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white font-medium py-1.5 px-2 rounded-md text-xs shadow-md transition flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-magnifying-glass text-[10px]"></i> btnFind
+                </button>
+                <button onclick="handleClientButton('clear')"
+                  class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 font-medium py-1.5 px-3 rounded-md text-xs transition">
+                  btn_clear
+                </button>
+              </div>
+            </div>
+
+            <!-- Client Internal Socket & Heap Memory Indicators -->
+            <div class="pt-3 border-t border-slate-800 space-y-2 text-[11px] font-mono">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Socket (sock):</span>
+                <span id="clientSocketBadge"
+                  class="bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded text-[10px] border border-rose-500/30">null</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Client Thread:</span>
+                <span id="clientThreadBadge"
+                  class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px]">ClientRunnable (Idle)</span>
+              </div>
+
+              <!-- Heap Object Inspector -->
+              <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                <div class="flex items-center justify-between text-amber-400 font-bold mb-1 text-[11px]">
+                  <span><i class="fa-solid fa-cube text-xs"></i> serialObj (Client Heap)</span>
+                  <span class="text-[9px] text-slate-500">SerializableClass</span>
+                </div>
+                <div id="clientHeapView" class="text-slate-300 text-[10px] space-y-0.5">
+                  <div>regno: <span class="text-emerald-400" id="clientHeapRegNo">"2025/BCS/084/PS"</span></div>
+                  <div>surname: <span class="text-emerald-400" id="clientHeapSurname">"Kabunga"</span></div>
+                  <div>status: <span class="text-amber-300" id="clientHeapStatus">""</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER PANEL: NETWORK PIPELINE & SERIALIZATION ENGINE -->
+      <div class="lg:col-span-4 flex flex-col space-y-3 justify-between">
+
+        <!-- Network Stream Pipeline Container -->
+        <div
+          class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex flex-col justify-between flex-1 relative overflow-hidden">
+          <div class="text-center pb-2 border-b border-slate-800">
+            <span class="text-xs font-bold text-slate-300 tracking-wider uppercase">
+              <i class="fa-solid fa-ethernet text-sky-400"></i> TCP Stream & Serialization Engine (Port 50000)
+            </span>
+          </div>
+
+          <!-- Dynamic Method Invocation Popup Callout -->
+          <div id="methodPopupCard"
+            class="hidden my-2 p-2 bg-gradient-to-r from-purple-900/90 to-sky-900/90 border border-purple-400/50 rounded-lg text-center shadow-2xl popup-badge">
+            <div class="text-[11px] font-bold text-purple-200 font-mono flex items-center justify-center gap-1">
+              <i class="fa-solid fa-code text-amber-400"></i> <span
+                id="popupMethodName">ObjectOutputStream.writeObject()</span>
+            </div>
+            <p id="popupMethodDesc" class="text-[10px] text-slate-300 font-sans mt-0.5">
+              Flattening Java Object into binary byte stream
+            </p>
+          </div>
+
+          <!-- Network Tubes & Packet Motion Visualization Area -->
+          <div class="relative py-4 my-auto space-y-6">
+
+            <!-- Outbound Stream Pipe (Client -> Server) -->
+            <div class="relative">
+              <div class="flex justify-between text-[10px] font-mono text-slate-400 mb-1">
+                <span>ObjectOutputStream.writeObject()</span>
+                <i class="fa-solid fa-arrow-right text-sky-400 animate-pulse"></i>
+                <span>ObjectInputStream.readObject()</span>
+              </div>
+              <div
+                class="h-7 w-full bg-slate-950 rounded-full border border-sky-500/40 relative overflow-hidden flex items-center">
+                <div id="outboundPipe" class="w-full h-full opacity-30"></div>
+                <!-- Outbound Movable Packet -->
+                <div id="outboundPacket"
+                  class="absolute top-0.5 left-0 bg-sky-500 text-slate-950 font-mono font-bold text-[10px] px-2.5 py-0.5 rounded-full shadow-lg border border-sky-300 flex items-center gap-1 transition-all duration-700 opacity-0">
+                  <i class="fa-solid fa-box text-[9px]"></i> <span id="outboundPacketText">serialObj</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Middle Serialization Converter Box -->
+            <div id="serializationEngineBox"
+              class="bg-slate-950 border border-purple-500/40 rounded-xl p-3 text-center relative shadow-lg">
+              <div class="text-[11px] font-bold text-purple-400 flex items-center justify-center gap-1.5 mb-1">
+                <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> Java Object Serialization Mechanism
+              </div>
+              <div class="text-[10px] font-mono text-slate-400 mb-2">
+                `implements java.io.Serializable`
+              </div>
+
+              <!-- Stream Byte Representation Display -->
+              <div
+                class="bg-slate-900/90 rounded-lg p-2 border border-purple-900/50 text-left font-mono text-[10px] text-purple-300">
+                <div class="text-slate-400 text-[9px] mb-1 flex justify-between">
+                  <span>Binary Byte Stream Breakdown:</span>
+                  <span id="byteHeaderBadge" class="text-amber-400 font-bold">0xACED (STREAM_MAGIC)</span>
+                </div>
+                <div id="hexByteStream" class="break-all leading-relaxed text-slate-300 font-mono text-[10px]">
+                  <span class="text-amber-400">AC ED 00 05</span> <span class="text-sky-400">73 72 00 22</span> <span
+                    class="text-emerald-400">63 68 61 72 6C 65 73...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inbound Stream Pipe (Server -> Client) -->
+            <div class="relative">
+              <div class="flex justify-between text-[10px] font-mono text-slate-400 mb-1">
+                <span>ObjectInputStream.readObject()</span>
+                <i class="fa-solid fa-arrow-left text-emerald-400 animate-pulse"></i>
+                <span>ObjectOutputStream.writeObject()</span>
+              </div>
+              <div
+                class="h-7 w-full bg-slate-950 rounded-full border border-emerald-500/40 relative overflow-hidden flex items-center">
+                <div id="inboundPipe" class="w-full h-full opacity-30"></div>
+                <!-- Inbound Movable Packet -->
+                <div id="inboundPacket"
+                  class="absolute top-0.5 right-0 bg-emerald-400 text-slate-950 font-mono font-bold text-[10px] px-2.5 py-0.5 rounded-full shadow-lg border border-emerald-200 flex items-center gap-1 transition-all duration-700 opacity-0">
+                  <i class="fa-solid fa-box text-[9px]"></i> <span id="inboundPacketText">responseObj</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Status Indicator Footer -->
+          <div class="text-center pt-2 border-t border-slate-800 text-[10px] text-slate-400 font-mono">
+            State: <span id="networkStatusText" class="text-rose-400">Disconnected (Socket closed)</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT PANEL: SERVER SWING FRAME & DATABASE -->
+      <div class="lg:col-span-4 flex flex-col space-y-3">
+        <!-- Server Swing JFrame Mockup -->
+        <div class="swing-window flex-1 flex flex-col overflow-hidden">
+          <div class="swing-titlebar flex items-center justify-between text-xs font-mono font-medium text-slate-300">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-server text-emerald-400 text-sm"></i>
+              <span>Server JFrame (Port 50000)</span>
+            </div>
+            <div class="flex space-x-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-600 block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-600 block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-600 block"></span>
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-900/90 flex-1 flex flex-col justify-between space-y-4">
+            <!-- Server Received GUI Fields -->
+            <div class="space-y-3">
+              <div class="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
+                <div class="text-[11px] font-bold text-slate-300 mb-2 flex items-center justify-between">
+                  <span>Server Received GUI Fields</span>
+                  <span class="text-[10px] text-emerald-400 font-mono">ServerSocket(50000)</span>
+                </div>
+                <div class="space-y-2">
+                  <div>
+                    <label class="block text-[11px] text-slate-400">lblRegNo / txtRegNo:</label>
+                    <input type="text" id="srvTxtRegNo" readonly value="" placeholder="(Waiting for request...)"
+                      class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs font-mono text-emerald-300 outline-none">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] text-slate-400">lblSurName / txtSurName:</label>
+                    <input type="text" id="srvTxtSurName" readonly value="" placeholder="(Waiting for request...)"
+                      class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs font-mono text-emerald-300 outline-none">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Server Listener Thread Badge -->
+              <div class="flex items-center justify-between text-[11px] font-mono">
+                <span class="text-slate-400">Server Thread:</span>
+                <span id="serverThreadBadge"
+                  class="bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px]">ServerRunnable (Idle)</span>
+              </div>
+            </div>
+
+            <!-- SIMULATED MYSQL DATABASE PANEL (JDBC connection) -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-emerald-900/60 shadow-lg space-y-2">
+              <div class="flex items-center justify-between text-xs font-bold text-emerald-400">
+                <span><i class="fa-solid fa-database"></i> MySQL Database (`store` table)</span>
+                <span id="jdbcBadge"
+                  class="text-[9px] bg-emerald-950 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-800">JDBC
+                  Ready</span>
+              </div>
+
+              <!-- SQL Query Live Display -->
+              <div id="sqlQueryLog"
+                class="text-[10px] font-mono bg-slate-900 p-1.5 rounded border border-slate-800 text-amber-300 truncate">
+                SQL: SELECT * FROM store;
+              </div>
+
+              <!-- DB Table Records -->
+              <div class="overflow-x-auto max-h-28 overflow-y-auto">
+                <table class="w-full text-left text-[11px] font-mono">
+                  <thead class="bg-slate-900 text-slate-400 border-b border-slate-800 sticky top-0">
+                    <tr>
+                      <th class="p-1">regno</th>
+                      <th class="p-1">surname</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dbTableBody" class="divide-y divide-slate-800 text-slate-300">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM SECTION: CODE INSPECTOR & EXECUTION EVENT LOG -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+
+      <!-- CODE INSPECTOR TABBED PANEL -->
+      <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <!-- Tabs -->
+        <div class="bg-slate-950 border-b border-slate-800 flex items-center justify-between px-3 pt-2">
+          <div class="flex space-x-1">
+            <button onclick="switchCodeTab('Client')" id="tabBtnClient"
+              class="px-3 py-1.5 text-xs font-mono font-medium rounded-t-lg bg-slate-900 text-sky-400 border-t-2 border-sky-400 flex items-center gap-1.5">
+              <i class="fa-regular fa-file-code"></i> Client.java
+            </button>
+            <button onclick="switchCodeTab('Server')" id="tabBtnServer"
+              class="px-3 py-1.5 text-xs font-mono font-medium rounded-t-lg bg-slate-950 text-slate-400 hover:text-slate-200 flex items-center gap-1.5">
+              <i class="fa-regular fa-file-code"></i> Server.java
+            </button>
+            <button onclick="switchCodeTab('Serializable')" id="tabBtnSerializable"
+              class="px-3 py-1.5 text-xs font-mono font-medium rounded-t-lg bg-slate-950 text-slate-400 hover:text-slate-200 flex items-center gap-1.5">
+              <i class="fa-regular fa-file-code"></i> SerializableClass.java
+            </button>
+          </div>
+          <span class="text-[10px] text-slate-400 font-mono pr-2">Dynamic Execution Highlight</span>
+        </div>
+
+        <!-- Code Block Viewport -->
+        <div id="codeViewContainer" class="p-3 bg-slate-950 font-mono text-xs max-h-72 overflow-y-auto leading-relaxed">
+          <!-- Code content injected dynamically with line numbers -->
+        </div>
+      </div>
+
+      <!-- EXECUTION EVENT CONSOLE LOG -->
+      <div
+        class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col h-full max-h-80 shadow-xl">
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+          <span class="text-xs font-bold text-slate-300 font-mono flex items-center gap-1.5">
+            <i class="fa-solid fa-terminal text-amber-400"></i> Execution Trace & Behind the Hood Log
+          </span>
+          <button onclick="clearConsoleLog()"
+            class="text-[10px] text-slate-400 hover:text-slate-200 bg-slate-800 px-2 py-0.5 rounded">Clear Log</button>
+        </div>
+        <div id="consoleLogBox"
+          class="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 font-mono text-[11px] text-slate-300 overflow-y-auto space-y-1 max-h-60">
+          <div class="text-slate-500">// System ready. Click Play to start Java Client-Server visualization.</div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- JOPTIONPANE DIALOG MODAL SIMULATOR -->
+  <div id="joptionPaneModal"
+    class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="bg-slate-800 border-2 border-slate-600 rounded-xl p-5 max-w-sm w-full shadow-2xl space-y-4">
+      <div class="flex items-center space-x-3">
+        <div id="modalIcon" class="text-2xl text-sky-400">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <div>
+          <h3 id="modalTitle" class="text-sm font-bold text-white font-mono">JOptionPane Message</h3>
+          <p id="modalSource" class="text-[10px] text-slate-400">Client Frame</p>
+        </div>
+      </div>
+      <p id="modalMessage" class="text-xs text-slate-200 bg-slate-900 p-3 rounded-lg border border-slate-700 font-sans">
+        Message body here
+      </p>
+      <div class="flex justify-end">
+        <button onclick="closeModal()"
+          class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-1.5 rounded-lg text-xs transition">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEACHING ASSISTANT EXPLANATION MODAL -->
+  <div id="helpGuideModal"
+    class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div
+      class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="bg-slate-950 px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-2 text-sky-400 font-bold font-mono text-sm">
+          <i class="fa-solid fa-circle-info text-sky-400"></i>
+          <span>How to Run & Execution Architecture</span>
+        </div>
+        <button onclick="closeHelpModal()" class="text-slate-400 hover:text-white transition text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body Scrollable -->
+      <div class="p-6 overflow-y-auto space-y-4 text-xs text-slate-300 leading-relaxed font-sans">
+
+        <div class="bg-slate-950 p-4 rounded-xl border border-sky-500/30 space-y-2">
+          <h4 class="text-sky-400 font-bold font-mono text-xs flex items-center gap-2">
+            <i class="fa-solid fa-microchip"></i> 1. What Happens Under the Hood?
+          </h4>
+          <p class="text-slate-300">
+            When <code class="text-amber-300">clientObjectStreamWriter.writeObject(serialObj)</code> is invoked:
+          </p>
+          <ul class="list-disc list-inside space-y-1 text-slate-400 pl-2">
+            <li><strong>Marker Interface:</strong> Java verifies that <code
+                class="text-emerald-400">SerializableClass</code> implements <code
+                class="text-emerald-400">java.io.Serializable</code>.</li>
+            <li><strong>Header Handshake:</strong> Stream writes <code class="text-amber-400">0xACED</code>
+              (STREAM_MAGIC) and <code class="text-amber-400">0x0005</code> (STREAM_VERSION) header bytes.</li>
+            <li><strong>Flattening:</strong> Reflection inspects non-transient fields (<code
+                class="text-sky-300">regno</code>, <code class="text-sky-300">surname</code>, <code
+                class="text-sky-300">status</code>) and serializes values to binary stream bytes.</li>
+            <li><strong>Network TCP Transport:</strong> Bytes flow across port 50000 over TCP/IP socket.</li>
+            <li><strong>Deserialization:</strong> On server side, <code class="text-amber-300">readObject()</code>
+              allocates memory and reconstructs object instance on server Heap.</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-xl border border-emerald-500/30 space-y-2">
+          <h4 class="text-emerald-400 font-bold font-mono text-xs flex items-center gap-2">
+            <i class="fa-brands fa-java text-amber-400"></i> 2. How to Run the Provided Java Code
+          </h4>
+          <ol class="list-decimal list-inside space-y-1.5 text-slate-300 pl-2">
+            <li>Create package directory <code class="text-sky-300">charlesk.com.jdbc</code> with <code
+                class="text-emerald-400">Client.java</code>, <code class="text-emerald-400">Server.java</code>, and
+              <code class="text-emerald-400">SerializableClass.java</code>.
+            </li>
+            <li><strong>Run Server.java first:</strong> Starts <code class="text-sky-300">ServerSocket(50000)</code>
+              listening for incoming connections.</li>
+            <li><strong>Run Client.java second:</strong> Creates <code
+                class="text-sky-300">Socket("127.0.0.1", 50000)</code> and opens streams.</li>
+          </ol>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-slate-950 px-5 py-3 border-t border-slate-800 flex justify-end">
+        <button onclick="closeHelpModal()"
+          class="bg-sky-600 hover:bg-sky-500 text-white font-medium px-4 py-1.5 rounded-lg text-xs transition">
+          Close Guide
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // --- DATABASE & STATE ENGINE ---
+    let dbStore = [
+      { surname: 'Kabunga', regno: '2025/BCS/084/PS' },
+      { surname: 'Lugonvu', regno: '2025/BCS/112/PS' },
+      { surname: 'Atuhaire', regno: '2025/BCS/055/PS' }
+    ];
+
+    let state = {
+      connected: false,
+      clientHeap: { regno: "2025/BCS/084/PS", surname: "Kabunga", status: "" },
+      serverHeap: { regno: "", surname: "", status: "" },
+      clientGui: { regno: "2025/BCS/084/PS", surname: "Kabunga" },
+      serverGui: { regno: "", surname: "" },
+      currentTab: 'Client',
+      activeWorkflow: 'save',
+      steps: [],
+      currentStepIndex: -1,
+      isPlaying: false,
+      playInterval: null,
+      speedMs: 2500
+    };
+
+    // --- JAVA CODE SOURCE TEXT FOR INSPECTOR ---
+    const CODE_CLIENT = [
+      'package charlesk.com.jdbc;',
+      'import java.io.*;',
+      'import java.net.Socket;',
+      'import javax.swing.JOptionPane;',
+      '',
+      'public class Client extends javax.swing.JFrame {',
+      '    ObjectOutputStream clientObjectStreamWriter;',
+      '    ObjectInputStream clientObjectStreamReader;',
+      '    Socket sock;',
+      '    SerializableClass serialObj;',
+      '',
+      '    public Client() { initComponents(); serialObj = new SerializableClass(); }',
+      '',
+      '    public void go() {',
+      '        try {',
+      '            sock = new Socket("127.0.0.1", 50000);',
+      '            clientObjectStreamWriter = new ObjectOutputStream(sock.getOutputStream());',
+      '            clientObjectStreamWriter.flush();',
+      '            clientObjectStreamReader = new ObjectInputStream(sock.getInputStream());',
+      '            System.out.println("Networking established");',
+      '            Thread t = new Thread(new ClientRunnable());',
+      '            t.start();',
+      '        } catch (IOException ex) { ex.printStackTrace(); }',
+      '    }',
+      '',
+      '    public class ClientRunnable implements Runnable {',
+      '        public void run() {',
+      '            try {',
+      '                while (true) {',
+      '                    SerializableClass response = (SerializableClass) clientObjectStreamReader.readObject();',
+      '                    if (response == null) break;',
+      '                    if ("findResult".equals(response.status)) {',
+      '                        javax.swing.SwingUtilities.invokeLater(() -> {',
+      '                            txtRegNo.setText(response.regno);',
+      '                            txtSurName.setText(response.surname);',
+      '                        });',
+      '                    } else if ("notFound".equals(response.status)) {',
+      '                        javax.swing.SwingUtilities.invokeLater(() -> {',
+      '                            txtSurName.setText("");',
+      '                            JOptionPane.showMessageDialog(Client.this, "No record found for: " + response.regno);',
+      '                        });',
+      '                    }',
+      '                }',
+      '            } catch (Exception ex) { ex.printStackTrace(); }',
+      '        }',
+      '    }',
+      '',
+      '    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {',
+      '        serialObj.regno = txtRegNo.getText();',
+      '        serialObj.surname = txtSurName.getText();',
+      '        serialObj.status = "save";',
+      '        if (serialObj.surname.isEmpty()) { JOptionPane.showMessageDialog(this, "Enter Surname"); return; }',
+      '        else if (serialObj.regno.isEmpty()) { JOptionPane.showMessageDialog(this, "Enter Reg number"); return; }',
+      '        try {',
+      '            clientObjectStreamWriter.writeObject(serialObj);',
+      '            clientObjectStreamWriter.flush();',
+      '            System.out.println("sent");',
+      '        } catch (IOException ex) { ex.printStackTrace(); }',
+      '    }',
+      '',
+      '    private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {',
+      '        String regno = txtRegNo.getText().trim();',
+      '        if (regno.isEmpty()) { JOptionPane.showMessageDialog(this, "Please fill in your registration number"); return; }',
+      '        txtSurName.setText("");',
+      '        serialObj.regno = regno;',
+      '        serialObj.surname = "";',
+      '        serialObj.status = "find";',
+      '        try {',
+      '            clientObjectStreamWriter.writeObject(serialObj);',
+      '            clientObjectStreamWriter.flush();',
+      '        } catch (IOException ex) { ex.printStackTrace(); }',
+      '    }',
+      '}'
+    ];
+
+    const CODE_SERVER = [
+      'package charlesk.com.jdbc;',
+      'import java.io.*;',
+      'import java.net.ServerSocket;',
+      'import java.net.Socket;',
+      'import java.sql.*;',
+      '',
+      'public class Server extends javax.swing.JFrame {',
+      '    ObjectOutputStream serverObjectStreamWriter;',
+      '    ObjectInputStream serverObjectStreamReader;',
+      '    ServerSocket serverSock;',
+      '    Socket clientSocket;',
+      '    SerializableClass serialObj;',
+      '',
+      '    public void go() {',
+      '        try {',
+      '            serverSock = new ServerSocket(50000);',
+      '            serialObj = new SerializableClass();',
+      '            clientSocket = serverSock.accept();',
+      '            serverObjectStreamWriter = new ObjectOutputStream(clientSocket.getOutputStream());',
+      '            serverObjectStreamWriter.flush();',
+      '            serverObjectStreamReader = new ObjectInputStream(clientSocket.getInputStream());',
+      '            Thread t = new Thread(new ServerRunnable());',
+      '            t.start();',
+      '            System.out.println("got a connection");',
+      '        } catch (Exception ex) { ex.printStackTrace(); }',
+      '    }',
+      '',
+      '    public class ServerRunnable implements Runnable {',
+      '        public void run() {',
+      '            try {',
+      '                while (true) {',
+      '                    SerializableClass request = (SerializableClass) serverObjectStreamReader.readObject();',
+      '                    if (request == null) break;',
+      '                    serialObj = request;',
+      '                    txtRegNo.setText(request.regno);',
+      '                    txtSurName.setText(request.surname);',
+      '                    if ("find".equals(request.status)) { find(); }',
+      '                    else if ("save".equals(request.status)) { save(); }',
+      '                }',
+      '            } catch (Exception ex) { ex.printStackTrace(); }',
+      '        }',
+      '    }',
+      '',
+      '    public void save() {',
+      '        serialObj.regno = txtRegNo.getText();',
+      '        serialObj.surname = txtSurName.getText();',
+      '        String regno = txtRegNo.getText();',
+      '        String surname = txtSurName.getText();',
+      '        if (surname.isEmpty() || regno.isEmpty()) return;',
+      '        String sql = "INSERT INTO store(surname, regno) VALUES (?, ?);";',
+      '        try (Connection con = DatabaseConnection.getConnection();',
+      '             PreparedStatement pst = con.prepareStatement(sql)) {',
+      '            pst.setString(1, surname);',
+      '            pst.setString(2, regno);',
+      '            int result = pst.executeUpdate();',
+      '            if (result > 0) {',
+      '                JOptionPane.showMessageDialog(this, "Credentials saved successfully");',
+      '                clear();',
+      '            }',
+      '        } catch (SQLException e) { ... }',
+      '    }',
+      '',
+      '    public void find() {',
+      '        String regno = serialObj.regno;',
+      '        String sql = "SELECT surname, regno FROM store WHERE regno = ?";',
+      '        JOptionPane.showMessageDialog(this, "Find method");',
+      '        try (Connection con = DatabaseConnection.getConnection();',
+      '             PreparedStatement pst = con.prepareStatement(sql)) {',
+      '            pst.setString(1, regno);',
+      '            try (ResultSet result = pst.executeQuery()) {',
+      '                if (result.next()) {',
+      '                    serialObj.regno = result.getString("regno");',
+      '                    serialObj.surname = result.getString("surname");',
+      '                    serialObj.status = "findResult";',
+      '                } else {',
+      '                    serialObj.regno = regno;',
+      '                    serialObj.surname = "";',
+      '                    serialObj.status = "notFound";',
+      '                }',
+      '            }',
+      '            serverObjectStreamWriter.writeObject(serialObj);',
+      '            serverObjectStreamWriter.flush();',
+      '        } catch (Exception e) { e.printStackTrace(); }',
+      '    }',
+      '}'
+    ];
+
+    const CODE_SERIALIZABLE = [
+      'package charlesk.com.jdbc;',
+      'import java.io.Serializable;',
+      '',
+      '/**',
+      ' * @author HP',
+      ' */',
+      'public class SerializableClass implements Serializable {',
+      '    String regno, surname, status;',
+      '    public SerializableClass() {',
+      '        regno = "";',
+      '        surname = "";',
+      '        status = "";',
+      '    }',
+      '}'
+    ];
+
+    // --- INITIALIZATION ---
+    window.onload = function () {
+      renderDbTable();
+      switchCodeTab('Client');
+      logConsole('System initialized. ServerSocket listening on port 50000.', 'socket');
+
+      // Auto-start initial simulation on page load
+      setTimeout(() => {
+        startWorkflow('save');
+      }, 500);
+    };
+
+    // --- PLAYBACK ANIMATION CONTROL FUNCTIONS ---
+    function pauseAnimation() {
+      state.isPlaying = false;
+      if (state.playInterval) {
+        clearInterval(state.playInterval);
+        state.playInterval = null;
+      }
+      const playIcon = document.getElementById('playIcon');
+      const playText = document.getElementById('playText');
+      if (playIcon) playIcon.className = 'fa-solid fa-play';
+      if (playText) playText.innerText = 'Play';
+    }
+
+    function playAnimation() {
+      if (state.steps.length === 0) {
+        startWorkflow('save');
+        return;
+      }
+      state.isPlaying = true;
+      const playIcon = document.getElementById('playIcon');
+      const playText = document.getElementById('playText');
+      if (playIcon) playIcon.className = 'fa-solid fa-pause';
+      if (playText) playText.innerText = 'Pause';
+
+      if (state.playInterval) clearInterval(state.playInterval);
+      state.playInterval = setInterval(() => {
+        if (state.currentStepIndex < state.steps.length - 1) {
+          state.currentStepIndex++;
+          applyStep(state.currentStepIndex);
+        } else {
+          pauseAnimation();
+        }
+      }, state.speedMs);
+    }
+
+    function togglePlay() {
+      if (state.steps.length === 0 || state.currentStepIndex >= state.steps.length - 1) {
+        startWorkflow(state.activeWorkflow || 'save');
+        return;
+      }
+      if (state.isPlaying) {
+        pauseAnimation();
+      } else {
+        playAnimation();
+      }
+    }
+
+    function stepForward() {
+      if (state.steps.length === 0) {
+        startWorkflow('save');
+        return;
+      }
+      pauseAnimation();
+      if (state.currentStepIndex < state.steps.length - 1) {
+        state.currentStepIndex++;
+        applyStep(state.currentStepIndex);
+      }
+    }
+
+    function stepBackward() {
+      if (state.steps.length === 0) return;
+      pauseAnimation();
+      if (state.currentStepIndex > 0) {
+        state.currentStepIndex--;
+        applyStep(state.currentStepIndex);
+      }
+    }
+
+    function updateSpeed(val) {
+      state.speedMs = parseInt(val);
+      document.getElementById('speedVal').innerText = `${(state.speedMs / 1000).toFixed(1)}s`;
+      if (state.isPlaying) {
+        playAnimation();
+      }
+    }
+
+    // --- RENDER & DISPLAY HELPERS ---
+    function renderDbTable(highlightRegNo = null) {
+      const tbody = document.getElementById('dbTableBody');
+      tbody.innerHTML = '';
+      dbStore.forEach(row => {
+        const isMatch = highlightRegNo && row.regno === highlightRegNo;
+        const tr = document.createElement('tr');
+        tr.className = isMatch ? 'bg-amber-500/30 font-bold text-amber-200' : 'hover:bg-slate-900';
+        tr.innerHTML = `
+          <td class="p-1">${row.regno}</td>
+          <td class="p-1">${row.surname}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function switchCodeTab(tab) {
+      state.currentTab = tab;
+      ['Client', 'Server', 'Serializable'].forEach(t => {
+        const btn = document.getElementById(`tabBtn${t}`);
+        if (t === tab) {
+          btn.className = 'px-3 py-1.5 text-xs font-mono font-medium rounded-t-lg bg-slate-900 text-sky-400 border-t-2 border-sky-400 flex items-center gap-1.5';
+        } else {
+          btn.className = 'px-3 py-1.5 text-xs font-mono font-medium rounded-t-lg bg-slate-950 text-slate-400 hover:text-slate-200 flex items-center gap-1.5';
+        }
+      });
+      renderCodeInspector();
+    }
+
+    function renderCodeInspector(highlightLines = []) {
+      const container = document.getElementById('codeViewContainer');
+      let lines = [];
+      if (state.currentTab === 'Client') lines = CODE_CLIENT;
+      else if (state.currentTab === 'Server') lines = CODE_SERVER;
+      else lines = CODE_SERIALIZABLE;
+
+      let html = '';
+      lines.forEach((lineText, idx) => {
+        const lineNum = idx + 1;
+        const isHighlighted = highlightLines.includes(lineNum);
+        const highlightClass = isHighlighted ? 'code-line-highlight font-bold' : 'hover:bg-slate-900/60';
+        html += `
+          <div id="codeLine-${lineNum}" class="flex items-start px-2 py-0.5 rounded transition ${highlightClass}">
+            <span class="w-8 text-right pr-3 text-slate-600 select-none text-[10px]">${lineNum}</span>
+            <span class="flex-1 whitespace-pre">${escapeHtml(lineText)}</span>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+
+      if (highlightLines.length > 0) {
+        const targetEl = document.getElementById(`codeLine-${highlightLines[0]}`);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function logConsole(msg, type = 'info') {
+      const box = document.getElementById('consoleLogBox');
+      const div = document.createElement('div');
+      const time = new Date().toLocaleTimeString().split(' ')[0];
+      let color = 'text-slate-300';
+      if (type === 'socket') color = 'text-sky-400 font-bold';
+      else if (type === 'jdbc') color = 'text-emerald-400 font-bold';
+      else if (type === 'serialize') color = 'text-purple-400 font-bold';
+      else if (type === 'warn') color = 'text-amber-300';
+
+      div.className = `${color} leading-relaxed`;
+      div.innerHTML = `<span class="text-slate-600 text-[10px]">[${time}]</span> ${msg}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function clearConsoleLog() {
+      document.getElementById('consoleLogBox').innerHTML = '<div class="text-slate-500">// Console log cleared.</div>';
+    }
+
+    // --- WORKFLOW GENERATOR ENGINE ---
+    function startWorkflow(type) {
+      const regnoVal = document.getElementById('txtRegNo').value.trim();
+      const surnameVal = document.getElementById('txtSurName').value.trim();
+
+      pauseAnimation();
+
+      state.activeWorkflow = type;
+      state.steps = [];
+
+      if (type === 'connect') {
+        buildConnectSteps();
+      } else if (type === 'save') {
+        buildConnectSteps();
+        buildSaveSteps(regnoVal, surnameVal);
+      } else if (type === 'find') {
+        buildConnectSteps();
+        buildFindSteps(regnoVal);
+      }
+
+      state.currentStepIndex = 0;
+      applyStep(0);
+      playAnimation();
+    }
+
+    function handleClientButton(action) {
+      if (action === 'clear') {
+        document.getElementById('txtRegNo').value = '';
+        document.getElementById('txtSurName').value = '';
+        logConsole('Client cleared GUI textfields (clear())', 'info');
+      } else if (action === 'save') {
+        startWorkflow('save');
+      } else if (action === 'find') {
+        startWorkflow('find');
+      }
+    }
+
+    // --- WORKFLOW STEP BUILDERS ---
+    function buildConnectSteps() {
+      state.steps.push({
+        title: 'ServerSocket Initialization',
+        desc: 'Server executes `serverSock = new ServerSocket(50000)`. Binds port 50000 on Server machine.',
+        tab: 'Server',
+        lines: [16],
+        connected: false,
+        clientGui: { regno: getClientReg(), surname: getClientSurname() },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno: getClientReg(), surname: getClientSurname(), status: '' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: false },
+        inPacket: { show: false },
+        popup: { method: 'new ServerSocket(50000)', desc: 'Binds TCP Port 50000 on Server JVM' },
+        hexBytes: 'Waiting for client connection on port 50000...',
+        log: 'Server created ServerSocket(50000)',
+        logType: 'socket'
+      });
+
+      state.steps.push({
+        title: 'Client Socket Connection Request',
+        desc: 'Client executes `sock = new Socket("127.0.0.1", 50000)`. Sends TCP SYN handshake.',
+        tab: 'Client',
+        lines: [16],
+        connected: false,
+        clientGui: { regno: getClientReg(), surname: getClientSurname() },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno: getClientReg(), surname: getClientSurname(), status: '' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: true, pos: '25%', text: 'TCP SYN' },
+        inPacket: { show: false },
+        popup: { method: 'new Socket("127.0.0.1", 50000)', desc: 'Client initiates TCP handshake to Server' },
+        hexBytes: 'TCP SYN/ACK Handshake establishing...',
+        log: 'Client connecting to 127.0.0.1:50000',
+        logType: 'socket'
+      });
+
+      state.steps.push({
+        title: 'Server Accepts & Stream Headers Flushed',
+        desc: '`clientSocket = serverSock.accept()` completes connection. ObjectOutputStream writes stream magic header 0xACED 0x0005.',
+        tab: 'Server',
+        lines: [18, 19, 20, 21],
+        connected: true,
+        clientGui: { regno: getClientReg(), surname: getClientSurname() },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno: getClientReg(), surname: getClientSurname(), status: '' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: false },
+        inPacket: { show: false },
+        popup: { method: 'ObjectOutputStream / flush()', desc: 'Flushes 0xACED 0x0005 stream header bytes' },
+        hexBytes: 'AC ED 00 05 (STREAM_MAGIC & STREAM_VERSION Header)',
+        log: 'Socket connection established! Streams bound.',
+        logType: 'socket'
+      });
+
+      state.steps.push({
+        title: 'Listener Threads Spawned',
+        desc: '`ClientRunnable` and `ServerRunnable` threads start executing `readObject()` loop on background threads.',
+        tab: 'Client',
+        lines: [21, 22, 29],
+        connected: true,
+        clientGui: { regno: getClientReg(), surname: getClientSurname() },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno: getClientReg(), surname: getClientSurname(), status: '' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: false },
+        inPacket: { show: false },
+        popup: { method: 'new Thread(new Runnable()).start()', desc: 'Spawns background threads for continuous readObject()' },
+        hexBytes: 'Object Streams Active & Listening...',
+        log: 'Client and Server listener threads started.',
+        logType: 'info'
+      });
+    }
+
+    function buildSaveSteps(regno, surname) {
+      if (!surname) {
+        state.steps.push({
+          title: 'Client Validation Check - Surname Empty',
+          desc: 'Client checks serialObj.surname.isEmpty(). Shows JOptionPane warning modal.',
+          tab: 'Client',
+          lines: [47],
+          connected: true,
+          clientGui: { regno, surname: '' },
+          serverGui: { regno: '', surname: '' },
+          clientHeap: { regno, surname: '', status: 'save' },
+          serverHeap: { regno: '', surname: '', status: '' },
+          dialog: { title: 'Message', msg: 'Enter Surname', source: 'Client Frame' },
+          log: 'Validation failed: Surname is empty.',
+          logType: 'warn'
+        });
+        return;
+      }
+      if (!regno) {
+        state.steps.push({
+          title: 'Client Validation Check - RegNo Empty',
+          desc: 'Client checks serialObj.regno.isEmpty(). Shows JOptionPane warning modal.',
+          tab: 'Client',
+          lines: [48],
+          connected: true,
+          clientGui: { regno: '', surname },
+          serverGui: { regno: '', surname: '' },
+          clientHeap: { regno: '', surname, status: 'save' },
+          serverHeap: { regno: '', surname: '', status: '' },
+          dialog: { title: 'Message', msg: 'Enter Reg number', source: 'Client Frame' },
+          log: 'Validation failed: RegNo is empty.',
+          logType: 'warn'
+        });
+        return;
+      }
+
+      state.steps.push({
+        title: 'Client Assigns Object Instance Fields',
+        desc: `Client populates serialObj.regno = "${regno}", surname = "${surname}", status = "save".`,
+        tab: 'Client',
+        lines: [44, 45, 46],
+        connected: true,
+        clientGui: { regno, surname },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno, surname, status: 'save' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: false },
+        inPacket: { show: false },
+        popup: { method: 'serialObj.status = "save"', desc: 'Populating SerializableClass instance fields' },
+        hexBytes: `Heap Object Ready: { regno: "${regno}", surname: "${surname}", status: "save" }`,
+        log: `Client populated serialObj fields: [regno=${regno}, surname=${surname}, status=save]`,
+        logType: 'info'
+      });
+
+      state.steps.push({
+        title: 'Object Flattening (Serialization Process)',
+        desc: '`clientObjectStreamWriter.writeObject(serialObj)` invokes Java Serialization Engine. Object graph is flattened into binary byte stream.',
+        tab: 'Client',
+        lines: [50, 51],
+        connected: true,
+        clientGui: { regno, surname },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno, surname, status: 'save' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: true, pos: '30%', text: 'serialObj [save]' },
+        inPacket: { show: false },
+        popup: { method: 'ObjectOutputStream.writeObject(serialObj)', desc: 'Flattening Java Object into binary bytes' },
+        hexBytes: `AC ED 00 05 73 72 00 24 53 65 72 69 61 6C 69 7A 61 62 6C 65 43 6C 61 73 73 [regno:${regno}|surname:${surname}|status:save]`,
+        log: 'writeObject() converted object graph into serialized byte stream.',
+        logType: 'serialize'
+      });
+
+      state.steps.push({
+        title: 'TCP Network Stream Transit',
+        desc: 'Flattened bytes travel across network socket pipe from Client to Server port 50000.',
+        tab: 'Client',
+        lines: [52],
+        connected: true,
+        clientGui: { regno, surname },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno, surname, status: 'save' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: true, pos: '75%', text: 'serialObj [save]' },
+        inPacket: { show: false },
+        popup: { method: 'TCP Stream Packet', desc: 'Serialized byte stream moving over network channel' },
+        hexBytes: `TCP Stream Segment [Payload: ${regno}, ${surname}, status:save]`,
+        log: 'Network stream packet traveling over TCP channel...',
+        logType: 'socket'
+      });
+
+      state.steps.push({
+        title: 'Server Unflattening (Deserialization Process)',
+        desc: '`serverObjectStreamReader.readObject()` reads byte stream and reconstructs SerializableClass object on Server Heap.',
+        tab: 'Server',
+        lines: [30, 32, 33, 34],
+        connected: true,
+        clientGui: { regno, surname },
+        serverGui: { regno, surname },
+        clientHeap: { regno, surname, status: 'save' },
+        serverHeap: { regno, surname, status: 'save' },
+        outPacket: { show: false },
+        inPacket: { show: false },
+        popup: { method: 'ObjectInputStream.readObject()', desc: 'Reconstructing Java Object from binary stream bytes' },
+        hexBytes: 'Bytes reassembled into Java Object on Server JVM Heap!',
+        log: 'Server deserialized request object instance from stream.',
+        logType: 'serialize'
+      });
+
+      state.steps.push({
+        title: 'Server JDBC Database Storage',
+        desc: `Server connects to MySQL database and executes PreparedStatement: INSERT INTO store(surname, regno) VALUES ("${surname}", "${regno}");.`,
+        tab: 'Server',
+        lines: [46, 47, 48, 49, 50],
+        connected: true,
+        clientGui: { regno, surname },
+        serverGui: { regno, surname },
+        clientHeap: { regno, surname, status: 'save' },
+        serverHeap: { regno, surname, status: 'save' },
+        outPacket: { show: false },
+        inPacket: { show: false },
+        sql: `INSERT INTO store(surname, regno) VALUES ('${surname}', '${regno}');`,
+        newRecord: { surname, regno },
+        popup: { method: 'PreparedStatement.executeUpdate()', desc: 'Executing SQL INSERT into MySQL store table' },
+        dialog: { title: 'Message', msg: 'Credentials saved successfully', source: 'Server Frame' },
+        log: `JDBC executeUpdate(): Saved credentials for ${regno} to MySQL database store table.`,
+        logType: 'jdbc'
+      });
+
+      state.steps.push({
+        title: 'Server Save Complete & Clears Textfields',
+        desc: 'Server displays JOptionPane message and clears Server GUI textfields via clear().',
+        tab: 'Server',
+        lines: [52, 53],
+        connected: true,
+        clientGui: { regno, surname },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno, surname, status: 'save' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: false },
+        inPacket: { show: false },
+        log: 'Server save() operation completed successfully.',
+        logType: 'info'
+      });
+    }
+
+    function buildFindSteps(regno) {
+      if (!regno) {
+        state.steps.push({
+          title: 'Client Validation Check - RegNo Empty',
+          desc: 'Client checks regno.isEmpty(). Displays JOptionPane warning modal.',
+          tab: 'Client',
+          lines: [57],
+          connected: true,
+          clientGui: { regno: '', surname: '' },
+          serverGui: { regno: '', surname: '' },
+          clientHeap: { regno: '', surname: '', status: 'find' },
+          serverHeap: { regno: '', surname: '', status: '' },
+          dialog: { title: 'Message', msg: 'Please fill in your registration number', source: 'Client Frame' },
+          log: 'Validation failed: RegNo empty for find command.',
+          logType: 'warn'
+        });
+        return;
+      }
+
+      state.steps.push({
+        title: 'Client Prepares Find Request Object',
+        desc: `Client clears txtSurName and sets serialObj.regno = "${regno}", surname = "", status = "find".`,
+        tab: 'Client',
+        lines: [58, 59, 60, 61],
+        connected: true,
+        clientGui: { regno, surname: '' },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno, surname: '', status: 'find' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: false },
+        inPacket: { show: false },
+        popup: { method: 'serialObj.status = "find"', desc: 'Client preparing query request object' },
+        log: `Client created find request object for regno: ${regno}`,
+        logType: 'info'
+      });
+
+      state.steps.push({
+        title: 'Client Serializes & Sends Find Request',
+        desc: '`writeObject(serialObj)` flattens object and transmits request across socket stream.',
+        tab: 'Client',
+        lines: [63, 64],
+        connected: true,
+        clientGui: { regno, surname: '' },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno, surname: '', status: 'find' },
+        serverHeap: { regno: '', surname: '', status: '' },
+        outPacket: { show: true, pos: '50%', text: 'serialObj [find]' },
+        inPacket: { show: false },
+        popup: { method: 'clientObjectStreamWriter.writeObject()', desc: 'Serializing find request object' },
+        hexBytes: `AC ED 00 05 [regno:${regno}|surname:|status:find]`,
+        log: 'Outbound stream transmitting find request packet...',
+        logType: 'serialize'
+      });
+
+      const matchedRecord = dbStore.find(r => r.regno.toUpperCase() === regno.toUpperCase());
+
+      state.steps.push({
+        title: 'Server Receives & Executes JDBC SELECT Query',
+        desc: 'Server deserializes object and executes SELECT surname, regno FROM store WHERE regno = ?.',
+        tab: 'Server',
+        lines: [58, 60, 62],
+        connected: true,
+        clientGui: { regno, surname: '' },
+        serverGui: { regno: '', surname: '' },
+        clientHeap: { regno, surname: '', status: 'find' },
+        serverHeap: { regno, surname: '', status: 'find' },
+        outPacket: { show: false },
+        inPacket: { show: false },
+        sql: `SELECT surname, regno FROM store WHERE regno = '${regno}';`,
+        highlightDb: matchedRecord ? matchedRecord.regno : null,
+        popup: { method: 'PreparedStatement.executeQuery()', desc: 'Executing SQL SELECT against MySQL store table' },
+        dialog: { title: 'Message', msg: 'Find method', source: 'Server Frame' },
+        log: `JDBC executeQuery(): Querying database store table for regno: ${regno}`,
+        logType: 'jdbc'
+      });
+
+      const responseStatus = matchedRecord ? 'findResult' : 'notFound';
+      const responseSurname = matchedRecord ? matchedRecord.surname : '';
+
+      state.steps.push({
+        title: `Server Serializes Response Object (${responseStatus})`,
+        desc: matchedRecord
+          ? `Record found! Server updates serialObj.surname = "${responseSurname}", status = "findResult", and serializes object back to Client.`
+          : `No record found. Server sets serialObj.status = "notFound" and writes response object back to Client.`,
+        tab: 'Server',
+        lines: [64, 65, 66, 68, 69, 70, 73, 74],
+        connected: true,
+        clientGui: { regno, surname: '' },
+        serverGui: { regno, surname: responseSurname },
+        clientHeap: { regno, surname: '', status: 'find' },
+        serverHeap: { regno, surname: responseSurname, status: responseStatus },
+        outPacket: { show: false },
+        inPacket: { show: true, pos: '50%', text: `serialObj [${responseStatus}]` },
+        popup: { method: 'serverObjectStreamWriter.writeObject()', desc: `Serializing response object [status=${responseStatus}]` },
+        hexBytes: `AC ED 00 05 [regno:${regno}|surname:${responseSurname}|status:${responseStatus}]`,
+        log: `Server wrote response object back to stream [status=${responseStatus}]`,
+        logType: 'serialize'
+      });
+
+      if (matchedRecord) {
+        state.steps.push({
+          title: 'Client Receives Response & Updates GUI (SwingUtilities.invokeLater)',
+          desc: '`ClientRunnable` receives findResult object via readObject(). Uses SwingUtilities.invokeLater() to thread-safely update Swing textfields.',
+          tab: 'Client',
+          lines: [28, 29, 30, 31],
+          connected: true,
+          clientGui: { regno, surname: responseSurname },
+          serverGui: { regno, surname: responseSurname },
+          clientHeap: { regno, surname: responseSurname, status: 'findResult' },
+          serverHeap: { regno, surname: responseSurname, status: 'findResult' },
+          outPacket: { show: false },
+          inPacket: { show: false },
+          popup: { method: 'SwingUtilities.invokeLater()', desc: 'Thread-safely updating Swing GUI components on Event Dispatch Thread' },
+          log: `Client Swing UI updated: Found record for ${regno} -> Surname: ${responseSurname}`,
+          logType: 'info'
+        });
+      } else {
+        state.steps.push({
+          title: 'Client Receives notFound Response',
+          desc: '`ClientRunnable` receives notFound response and shows JOptionPane warning dialog.',
+          tab: 'Client',
+          lines: [33, 34, 35, 36],
+          connected: true,
+          clientGui: { regno, surname: '' },
+          serverGui: { regno: '', surname: '' },
+          clientHeap: { regno, surname: '', status: 'notFound' },
+          serverHeap: { regno, surname: '', status: 'notFound' },
+          outPacket: { show: false },
+          inPacket: { show: false },
+          popup: { method: 'JOptionPane.showMessageDialog()', desc: 'Displaying alert modal to user' },
+          dialog: { title: 'Message', msg: `No record found for registration number: ${regno}`, source: 'Client Frame' },
+          log: `Client alert displayed: No record found for ${regno}`,
+          logType: 'warn'
+        });
+      }
+    }
+
+    // --- APPLY STEP TO VISUAL UI ---
+    function applyStep(index) {
+      if (index < 0 || index >= state.steps.length) return;
+      const step = state.steps[index];
+
+      // Update Header Description
+      document.getElementById('stepBadge').innerText = `Step ${index + 1}/${state.steps.length}`;
+      document.getElementById('stepTitle').innerText = step.title;
+      document.getElementById('stepDescription').innerText = step.desc;
+
+      // Update Timeline Scrubber
+      const pct = ((index + 1) / state.steps.length) * 100;
+      document.getElementById('timelineProgress').style.width = `${pct}%`;
+
+      // Update Method Invocation Popup Card
+      const popupCard = document.getElementById('methodPopupCard');
+      if (step.popup) {
+        document.getElementById('popupMethodName').innerText = step.popup.method;
+        document.getElementById('popupMethodDesc').innerText = step.popup.desc;
+        popupCard.classList.remove('hidden');
+      } else {
+        popupCard.classList.add('hidden');
+      }
+
+      // Update Network Socket Badges
+      state.connected = step.connected;
+      const sBadge = document.getElementById('clientSocketBadge');
+      const nStatus = document.getElementById('networkStatusText');
+      if (step.connected) {
+        sBadge.className = "bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded text-[10px] border border-emerald-500/30";
+        sBadge.innerText = "Connected (127.0.0.1:50000)";
+        nStatus.className = "text-emerald-400 font-bold";
+        nStatus.innerText = "Connected & Active (Port 50000)";
+        document.getElementById('clientThreadBadge').className = "bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded text-[10px] border border-sky-500/30";
+        document.getElementById('clientThreadBadge').innerText = "ClientRunnable (RUNNING)";
+        document.getElementById('serverThreadBadge').className = "bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded text-[10px] border border-emerald-500/30";
+        document.getElementById('serverThreadBadge').innerText = "ServerRunnable (LISTENING)";
+      } else {
+        sBadge.className = "bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded text-[10px] border border-rose-500/30";
+        sBadge.innerText = "null";
+        nStatus.className = "text-rose-400";
+        nStatus.innerText = "Disconnected (Socket closed)";
+        document.getElementById('clientThreadBadge').className = "bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px]";
+        document.getElementById('clientThreadBadge').innerText = "ClientRunnable (Idle)";
+        document.getElementById('serverThreadBadge').className = "bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px]";
+        document.getElementById('serverThreadBadge').innerText = "ServerRunnable (Idle)";
+      }
+
+      // Update GUI Fields
+      if (step.clientGui) {
+        document.getElementById('txtRegNo').value = step.clientGui.regno;
+        document.getElementById('txtSurName').value = step.clientGui.surname;
+      }
+      if (step.serverGui) {
+        document.getElementById('srvTxtRegNo').value = step.serverGui.regno;
+        document.getElementById('srvTxtSurName').value = step.serverGui.surname;
+      }
+
+      // Update Client Memory Heap
+      if (step.clientHeap) {
+        document.getElementById('clientHeapRegNo').innerText = `"${step.clientHeap.regno}"`;
+        document.getElementById('clientHeapSurname').innerText = `"${step.clientHeap.surname}"`;
+        document.getElementById('clientHeapStatus').innerText = `"${step.clientHeap.status}"`;
+      }
+
+      // Update Packets Animations
+      const outP = document.getElementById('outboundPacket');
+      if (step.outPacket && step.outPacket.show) {
+        outP.style.opacity = '1';
+        outP.style.left = step.outPacket.pos || '50%';
+        document.getElementById('outboundPacketText').innerText = step.outPacket.text || 'serialObj';
+      } else {
+        outP.style.opacity = '0';
+        outP.style.left = '0%';
+      }
+
+      const inP = document.getElementById('inboundPacket');
+      if (step.inPacket && step.inPacket.show) {
+        inP.style.opacity = '1';
+        inP.style.right = step.inPacket.pos || '50%';
+        document.getElementById('inboundPacketText').innerText = step.inPacket.text || 'responseObj';
+      } else {
+        inP.style.opacity = '0';
+        inP.style.right = '0%';
+      }
+
+      // Hex stream inspector text
+      if (step.hexBytes) {
+        document.getElementById('hexByteStream').innerText = step.hexBytes;
+      }
+
+      // SQL Query log update & database table insertion
+      if (step.sql) {
+        document.getElementById('sqlQueryLog').innerText = `SQL: ${step.sql}`;
+      }
+      if (step.newRecord) {
+        const exists = dbStore.some(r => r.regno === step.newRecord.regno);
+        if (!exists) {
+          dbStore.push(step.newRecord);
+        }
+        renderDbTable(step.newRecord.regno);
+      } else {
+        renderDbTable(step.highlightDb || null);
+      }
+
+      // Code Tab & Line Highlighting
+      if (step.tab) {
+        switchCodeTab(step.tab);
+      }
+      renderCodeInspector(step.lines || []);
+
+      // Console log
+      if (step.log) {
+        logConsole(step.log, step.logType || 'info');
+      }
+
+      // Dialog Popup
+      if (step.dialog) {
+        showModal(step.dialog.title, step.dialog.msg, step.dialog.source);
+      } else {
+        closeModal();
+      }
+    }
+
+    function openHelpModal() {
+      document.getElementById('helpGuideModal').classList.remove('hidden');
+    }
+
+    function closeHelpModal() {
+      document.getElementById('helpGuideModal').classList.add('hidden');
+    }
+
+    function resetSimulation() {
+      pauseAnimation();
+      state.connected = false;
+      state.steps = [];
+      state.currentStepIndex = -1;
+      document.getElementById('stepBadge').innerText = 'Step 0/0';
+      document.getElementById('stepTitle').innerText = 'Ready';
+      document.getElementById('stepDescription').innerText = 'Select an action to begin visualization.';
+      document.getElementById('timelineProgress').style.width = '0%';
+      document.getElementById('srvTxtRegNo').value = '';
+      document.getElementById('srvTxtSurName').value = '';
+      document.getElementById('outboundPacket').style.opacity = '0';
+      document.getElementById('inboundPacket').style.opacity = '0';
+      document.getElementById('methodPopupCard').classList.add('hidden');
+      renderDbTable();
+      switchCodeTab('Client');
+      closeModal();
+      logConsole('Simulation reset.', 'info');
+    }
+
+    // Modal Dialog Helpers
+    function showModal(title, msg, source = 'Client Frame') {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalMessage').innerText = msg;
+      document.getElementById('modalSource').innerText = source;
+      document.getElementById('joptionPaneModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('joptionPaneModal').classList.add('hidden');
+    }
+
+    function getClientReg() {
+      return document.getElementById('txtRegNo').value;
+    }
+    function getClientSurname() {
+      return document.getElementById('txtSurName').value;
+    }
+  </script>
+</body>
+
+</html>
